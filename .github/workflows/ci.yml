@@ -1,0 +1,216 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  validate:
+    name: Code Validation
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, pgsql
+        coverage: xdebug
+    
+    - name: Validate PHP syntax
+      run: |
+        find . -name "*.php" -exec php -l {} \;
+    
+    - name: Check Moodle coding standards
+      run: |
+        # Verificar estructura básica de archivos Moodle
+        if [[ ! -f "version.php" ]]; then
+          echo "❌ version.php es requerido"
+          exit 1
+        fi
+        
+        if [[ ! -f "block_chaside.php" ]]; then
+          echo "❌ block_chaside.php es requerido"
+          exit 1
+        fi
+        
+        if [[ ! -d "db" ]]; then
+          echo "❌ directorio db/ es requerido"
+          exit 1
+        fi
+        
+        if [[ ! -f "db/access.php" ]]; then
+          echo "❌ db/access.php es requerido"
+          exit 1
+        fi
+        
+        echo "✅ Estructura de archivos válida"
+    
+    - name: Validate version.php format
+      run: |
+        php -r "
+        require_once 'version.php';
+        if (!isset(\$plugin)) {
+          echo '❌ \$plugin no está definido en version.php' . PHP_EOL;
+          exit(1);
+        }
+        if (!isset(\$plugin->component)) {
+          echo '❌ component no está definido' . PHP_EOL;
+          exit(1);
+        }
+        if (!isset(\$plugin->version)) {
+          echo '❌ version no está definido' . PHP_EOL;
+          exit(1);
+        }
+        echo '✅ version.php válido' . PHP_EOL;
+        "
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run security checks
+      run: |
+        # Buscar patrones de seguridad problemáticos
+        echo "🔍 Buscando patrones de seguridad..."
+        
+        # Verificar que no hay eval() statements
+        if grep -r "eval(" --include="*.php" .; then
+          echo "❌ Encontrado uso de eval() - riesgo de seguridad"
+          exit 1
+        fi
+        
+        # Verificar que no hay inclusiones dinámicas inseguras
+        if grep -r "\$_GET\[.*\].*include\|require" --include="*.php" .; then
+          echo "❌ Posible inclusión de archivos insegura"
+          exit 1
+        fi
+        
+        # Verificar escape de datos
+        if ! grep -r "clean_param\|s(" --include="*.php" . > /dev/null; then
+          echo "⚠️ Considerar usar funciones de escape de Moodle"
+        fi
+        
+        echo "✅ Verificaciones de seguridad básicas completadas"
+
+  package:
+    name: Create Release Package
+    runs-on: ubuntu-latest
+    needs: [validate, security]
+    if: github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Get version from version.php
+      id: get_version
+      run: |
+        VERSION=$(php -r "require_once 'version.php'; echo \$plugin->version;")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "📦 Version detectada: $VERSION"
+    
+    - name: Create plugin package
+      run: |
+        # Crear directorio temporal
+        mkdir -p /tmp/chaside-package
+        
+        # Copiar archivos del plugin (excluyendo archivos de desarrollo)
+        rsync -av \
+          --exclude='.git*' \
+          --exclude='.github/' \
+          --exclude='*.md' \
+          --exclude='node_modules/' \
+          --exclude='vendor/' \
+          --exclude='.DS_Store' \
+          --exclude='Thumbs.db' \
+          . /tmp/chaside-package/
+        
+        # Crear archivo ZIP
+        cd /tmp
+        zip -r chaside-${{ github.event.release.tag_name }}.zip chaside-package/
+        
+        # Mover a directorio de trabajo
+        mv chaside-${{ github.event.release.tag_name }}.zip $GITHUB_WORKSPACE/
+        
+        echo "📦 Paquete creado: chaside-${{ github.event.release.tag_name }}.zip"
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./chaside-${{ github.event.release.tag_name }}.zip
+        asset_name: chaside-${{ github.event.release.tag_name }}.zip
+        asset_content_type: application/zip
+
+  docs:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Generate documentation
+      run: |
+        echo "📚 Generando documentación..."
+        
+        # Crear directorio de documentación si no existe
+        mkdir -p docs
+        
+        # Generar documentación básica desde comentarios PHP
+        echo "# Documentación Técnica de CHASIDE" > docs/technical.md
+        echo "" >> docs/technical.md
+        echo "Generado automáticamente el $(date)" >> docs/technical.md
+        echo "" >> docs/technical.md
+        
+        # Extraer información de version.php
+        echo "## Información del Plugin" >> docs/technical.md
+        echo "" >> docs/technical.md
+        php -r "
+        require_once 'version.php';
+        echo '- **Componente**: ' . \$plugin->component . PHP_EOL;
+        echo '- **Versión**: ' . \$plugin->version . PHP_EOL;
+        echo '- **Requiere Moodle**: ' . \$plugin->requires . PHP_EOL;
+        echo '- **Madurez**: ' . (\$plugin->maturity ?? 'No especificada') . PHP_EOL;
+        " >> docs/technical.md
+        
+        echo "✅ Documentación generada"
+
+  notify:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [validate, security]
+    if: always()
+    
+    steps:
+    - name: Notify build status
+      run: |
+        if [[ "${{ needs.validate.result }}" == "success" && "${{ needs.security.result }}" == "success" ]]; then
+          echo "✅ Pipeline completado exitosamente"
+          echo "🚀 El código está listo para producción"
+        else
+          echo "❌ Pipeline falló en alguna etapa"
+          echo "🔍 Revisar logs para más detalles"
+          exit 1
+        fi
