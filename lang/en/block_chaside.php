@@ -7,6 +7,7 @@ $string['chaside:addinstance'] = 'Add a new CHASIDE block';
 $string['chaside:myaddinstance'] = 'Add a new CHASIDE block to My Page';
 $string['chaside:take_test'] = 'Take the CHASIDE test';
 $string['chaside:view_reports'] = 'View CHASIDE test reports';
+$string['chaside:manage_responses'] = 'Manage CHASIDE test responses';
 
 $string['test_title'] = 'CHASIDE Vocational Orientation Test';
 $string['test_instructions'] = 'Test Instructions';

@@ -12,6 +12,17 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.2] - 2025-01-23
+
+### Corregido
+- **Error de permisos**: Agregada traducción faltante para capacidad 'chaside:manage_responses'
+- **Compatibilidad**: Corregido error en archivo manage.php que impedía el acceso a profesores
+- **Traducciones**: Añadidas cadenas de texto en inglés y español para nuevas capacidades
+
+### Técnico
+- Actualizada versión del plugin para forzar reinstalación de capacidades
+- Verificadas todas las traducciones de capacidades en archivos de idioma
+
 ## [1.2.1] - 2025-01-23
 
 ### Añadido
