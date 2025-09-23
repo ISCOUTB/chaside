@@ -199,6 +199,9 @@ echo html_writer::tag('p', get_string('question', 'block_chaside') . " {$start_q
 // Formulario
 echo html_writer::start_tag('form', array('method' => 'post', 'action' => ''));
 
+// Agregar token de seguridad CSRF
+echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
+
 for ($i = $start_question; $i <= $end_question; $i++) {
     $question_text = get_string("q{$i}", 'block_chaside');
     $current_value = '';

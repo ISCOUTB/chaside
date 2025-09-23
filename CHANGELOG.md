@@ -12,6 +12,17 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.3] - 2025-01-23
+
+### Corregido
+- **Error CSRF**: Agregado campo 'sesskey' faltante en formulario del test
+- **Seguridad**: Corregido error 'missingparam' al enviar respuestas como estudiante
+- **Navegación**: Los botones Anterior/Siguiente ahora funcionan correctamente
+
+### Técnico
+- Añadido token de seguridad CSRF (`sesskey()`) al formulario en view.php línea 203
+- Previene errores de "Un parámetro necesario (sesskey) faltaba"
+
 ## [1.2.2] - 2025-01-23
 
 ### Corregido
