@@ -77,10 +77,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start_question = ($page - 1) * $questions_per_page + 1;
     $end_question = min($page * $questions_per_page, 98);
     
+    // Validar que todas las preguntas de la página actual estén respondidas
+    $current_page_complete = true;
+    $missing_questions_current_page = array();
+    
     for ($i = $start_question; $i <= $end_question; $i++) {
         $response = optional_param("q{$i}", null, PARAM_INT);
         if ($response !== null) {
             $data["q{$i}"] = $response;
+        } else {
+            // Verificar si ya existe una respuesta previa para esta pregunta
+            if (!$existing_response || !isset($existing_response->{"q{$i}"}) || $existing_response->{"q{$i}"} === null) {
+                $current_page_complete = false;
+                $missing_questions_current_page[] = $i;
+            }
         }
     }
     
@@ -107,15 +117,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($action) {
         case 'previous':
             if ($page > 1) {
-                $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1));
-                redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+                if (!$current_page_complete) {
+                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                    redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
+                } else {
+                    $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1));
+                    redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+                }
             }
             break;
             
         case 'next':
             if ($page < $total_pages) {
-                $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1));
-                redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+                if (!$current_page_complete) {
+                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                    redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
+                } else {
+                    $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1));
+                    redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+                }
             }
             break;
             
@@ -152,8 +172,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
         case 'save':
         default:
-            // Solo guardar sin navegar
-            redirect($PAGE->url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            // Validar que la página actual esté completa antes de guardar
+            if (!$current_page_complete) {
+                $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
+            } else {
+                // Solo guardar sin navegar
+                redirect($PAGE->url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            }
             break;
     }
 }
@@ -289,5 +315,76 @@ echo html_writer::end_tag('div');
 
 echo html_writer::end_tag('div');
 echo html_writer::end_tag('form');
+
+// JavaScript para validación en tiempo real
+echo html_writer::start_tag('script');
+echo "
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const radioInputs = form.querySelectorAll('input[type=\"radio\"]');
+    const saveBtn = form.querySelector('input[value=\"save\"]');
+    const previousBtn = form.querySelector('input[value=\"previous\"]');
+    const nextBtn = form.querySelector('input[value=\"next\"]');
+    const finishBtn = form.querySelector('input[value=\"finish\"]');
+    
+    function validateCurrentPage() {
+        const questions = {};
+        
+        // Obtener todas las preguntas de la página actual
+        radioInputs.forEach(function(input) {
+            const questionName = input.name;
+            if (!questions[questionName]) {
+                questions[questionName] = false;
+            }
+            if (input.checked) {
+                questions[questionName] = true;
+            }
+        });
+        
+        // Verificar si todas las preguntas están respondidas
+        const allAnswered = Object.values(questions).every(function(answered) {
+            return answered === true;
+        });
+        
+        // Habilitar o deshabilitar botones
+        if (saveBtn) {
+            saveBtn.disabled = !allAnswered;
+            saveBtn.style.opacity = allAnswered ? '1' : '0.5';
+        }
+        if (previousBtn) {
+            previousBtn.disabled = !allAnswered;
+            previousBtn.style.opacity = allAnswered ? '1' : '0.5';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = !allAnswered;
+            nextBtn.style.opacity = allAnswered ? '1' : '0.5';
+        }
+        if (finishBtn) {
+            finishBtn.disabled = !allAnswered;
+            finishBtn.style.opacity = allAnswered ? '1' : '0.5';
+        }
+        
+        return allAnswered;
+    }
+    
+    // Agregar event listeners a todos los radio buttons
+    radioInputs.forEach(function(input) {
+        input.addEventListener('change', validateCurrentPage);
+    });
+    
+    // Validación inicial al cargar la página
+    validateCurrentPage();
+    
+    // Prevenir envío del formulario si no está completo
+    form.addEventListener('submit', function(e) {
+        if (!validateCurrentPage()) {
+            e.preventDefault();
+            alert('" . get_string('complete_current_page', 'block_chaside') . "');
+            return false;
+        }
+    });
+});
+";
+echo html_writer::end_tag('script');
 
 echo $OUTPUT->footer();

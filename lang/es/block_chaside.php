@@ -186,4 +186,5 @@ $string['teachers_redirect_message'] = 'Los profesores y administradores no pued
 $string['back_to_course'] = 'Volver al Curso';
 $string['test_completed_success'] = '¡Test completado exitosamente! Puedes ver tus resultados en el bloque CHASIDE.';
 $string['progress_saved'] = 'Tu progreso ha sido guardado. Continúa a la siguiente página.';
-$string['complete_all_questions'] = 'Por favor completa todas las preguntas de esta página antes de finalizar el test.';
+$string['complete_all_questions'] = 'Por favor completa todas las preguntas antes de finalizar el test.';
+$string['complete_current_page'] = 'Por favor completa todas las preguntas de esta página antes de continuar.';

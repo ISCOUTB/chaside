@@ -12,6 +12,18 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.4] - 2025-01-23
+
+### Agregado
+- **Validación de formulario**: Los botones de navegación y guardar ahora se deshabilitan hasta que todas las preguntas de la página actual estén respondidas
+- **Validación JavaScript**: Validación en tiempo real que verifica que todos los campos estén completos antes de permitir navegación
+- **Validación servidor**: Verificación del lado del servidor para evitar navegación o guardado con campos incompletos
+
+### Mejorado
+- **Experiencia del usuario**: Los estudiantes ahora deben completar todas las preguntas de una página antes de poder continuar
+- **Interfaz**: Los botones deshabilitados se muestran visualmente con opacidad reducida
+- **Mensajes de error**: Nuevos mensajes informativos que indican cuántas preguntas faltan por responder
+
 ## [1.2.3] - 2025-01-23
 
 ### Corregido
