@@ -9,9 +9,43 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Planeado
 - Integración con sistemas de orientación vocacional externos
-- Soporte para múltiples idiomas
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
+
+## [1.2.0] - 2025-01-23
+
+### Añadido
+- **Guardado Progresivo por Página**: Cada página del test ahora guarda el progreso automáticamente
+- **Navegación Mejorada**: Botones independientes para anterior, guardar, siguiente y finalizar
+- **Preservación de Respuestas**: Las respuestas previas se mantienen al navegar entre páginas
+- **Validación Inteligente**: El sistema solo permite finalizar cuando todas las preguntas están contestadas
+- **Mensajes de Estado**: Notificaciones claras sobre el progreso guardado
+- **Detección de Completitud**: Contador de preguntas faltantes en mensajes de error
+
+### Cambiado
+- Refactorizada completamente la lógica de procesamiento de formularios
+- Implementado sistema de acciones múltiples (`previous`, `next`, `save`, `finish`)
+- Mejorada la estructura de datos para preservar estado entre páginas
+
+### Corregido
+- Arreglados errores de sintaxis en navegación
+- Corregida lógica de redirección en la última página
+- Mejorada la interfaz de usuario con botones más descriptivos
+
+## [1.1.2] - 2025-01-22
+
+### Corregido
+- Arreglados errores de sintaxis PHP
+- Corregida navegación entre páginas
+- Mejorada compatibilidad con Moodle 4.1
+
+## [1.1.1] - 2025-01-21
+
+### Añadido
+- Implementado control de acceso basado en roles
+- Solo estudiantes pueden tomar el test
+- Profesores y administradores ven estadísticas
+- Soporte para múltiples idiomas (Español/Inglés)
 
 ## [1.0.0] - 2024-09-23
 

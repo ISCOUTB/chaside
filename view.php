@@ -36,69 +36,125 @@ $existing_response = $DB->get_record('block_chaside_responses', array(
 
 // Procesar envío del formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_sesskey();
+    
+    $action = optional_param('action', 'save', PARAM_ALPHA);
+    
+    // Preparar datos base
     $data = array(
         'userid' => $USER->id,
         'courseid' => $courseid,
         'timemodified' => time()
     );
     
-    // Recopilar respuestas del formulario
-    for ($i = 1; $i <= 98; $i++) {
+    // Si existe una respuesta previa, mantener todos los datos existentes
+    if ($existing_response) {
+        $data['id'] = $existing_response->id;
+        // Copiar todas las respuestas existentes
+        for ($i = 1; $i <= 98; $i++) {
+            if (isset($existing_response->{"q{$i}"})) {
+                $data["q{$i}"] = $existing_response->{"q{$i}"};
+            }
+        }
+        // Mantener puntuaciones existentes si las hay
+        if (isset($existing_response->score_c)) $data['score_c'] = $existing_response->score_c;
+        if (isset($existing_response->score_h)) $data['score_h'] = $existing_response->score_h;
+        if (isset($existing_response->score_a)) $data['score_a'] = $existing_response->score_a;
+        if (isset($existing_response->score_s)) $data['score_s'] = $existing_response->score_s;
+        if (isset($existing_response->score_i)) $data['score_i'] = $existing_response->score_i;
+        if (isset($existing_response->score_d)) $data['score_d'] = $existing_response->score_d;
+        if (isset($existing_response->score_e)) $data['score_e'] = $existing_response->score_e;
+        if (isset($existing_response->is_completed)) $data['is_completed'] = $existing_response->is_completed;
+        if (isset($existing_response->timecompleted)) $data['timecompleted'] = $existing_response->timecompleted;
+        if (isset($existing_response->timecreated)) $data['timecreated'] = $existing_response->timecreated;
+    } else {
+        $data['timecreated'] = time();
+        $data['is_completed'] = 0;
+    }
+    
+    // Actualizar solo las respuestas de la página actual
+    $questions_per_page = 10;
+    $start_question = ($page - 1) * $questions_per_page + 1;
+    $end_question = min($page * $questions_per_page, 98);
+    
+    for ($i = $start_question; $i <= $end_question; $i++) {
         $response = optional_param("q{$i}", null, PARAM_INT);
         if ($response !== null) {
             $data["q{$i}"] = $response;
         }
     }
     
-    // Verificar si el test está completo
+    // Verificar si TODO el test está completo (todas las 98 preguntas)
     $completed = true;
     for ($i = 1; $i <= 98; $i++) {
-        if (!isset($data["q{$i}"])) {
+        if (!isset($data["q{$i}"]) || $data["q{$i}"] === null) {
             $completed = false;
             break;
         }
     }
     
-    if ($completed) {
-        // Calcular puntuaciones
-        $scores = $facade->calculate_scores($data);
-        $data['score_c'] = $scores['C'];
-        $data['score_h'] = $scores['H'];
-        $data['score_a'] = $scores['A'];
-        $data['score_s'] = $scores['S'];
-        $data['score_i'] = $scores['I'];
-        $data['score_d'] = $scores['D'];
-        $data['score_e'] = $scores['E'];
-        $data['is_completed'] = 1;
+    // Guardar datos independientemente de la acción
+    if ($existing_response) {
+        $DB->update_record('block_chaside_responses', $data);
     } else {
-        $data['is_completed'] = 0;
+        $DB->insert_record('block_chaside_responses', $data);
     }
     
-    if ($completed) {
-        // Marcar el test como completado con la fecha
-        $data['timecompleted'] = time();
-        
-        if ($existing_response) {
-            $data['id'] = $existing_response->id;
-            $DB->update_record('block_chaside_responses', $data);
-        } else {
-            $data['timecreated'] = time();
-            $DB->insert_record('block_chaside_responses', $data);
-        }
-        
-        // Redirigir al curso con mensaje de éxito
-        $course_url = new moodle_url('/course/view.php', array('id' => $courseid));
-        redirect($course_url, get_string('test_completed_success', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
-    } else {
-        if ($existing_response) {
-            $data['id'] = $existing_response->id;
-            $DB->update_record('block_chaside_responses', $data);
-        } else {
-            $data['timecreated'] = time();
-            $DB->insert_record('block_chaside_responses', $data);
-        }
-        
-        redirect(new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page)));
+    // Determinar total de páginas
+    $total_pages = ceil(98 / $questions_per_page);
+    
+    // Procesar según la acción del botón
+    switch ($action) {
+        case 'previous':
+            if ($page > 1) {
+                $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1));
+                redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            }
+            break;
+            
+        case 'next':
+            if ($page < $total_pages) {
+                $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1));
+                redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            }
+            break;
+            
+        case 'finish':
+            if ($completed) {
+                // Calcular puntuaciones solo cuando esté completamente terminado
+                $scores = $facade->calculate_scores($data);
+                $data['score_c'] = $scores['C'];
+                $data['score_h'] = $scores['H'];
+                $data['score_a'] = $scores['A'];
+                $data['score_s'] = $scores['S'];
+                $data['score_i'] = $scores['I'];
+                $data['score_d'] = $scores['D'];
+                $data['score_e'] = $scores['E'];
+                $data['is_completed'] = 1;
+                $data['timecompleted'] = time();
+                
+                // Actualizar con las puntuaciones finales
+                $DB->update_record('block_chaside_responses', $data);
+                
+                $course_url = new moodle_url('/course/view.php', array('id' => $courseid));
+                redirect($course_url, get_string('test_completed_success', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            } else {
+                $missing_questions = array();
+                for ($i = 1; $i <= 98; $i++) {
+                    if (!isset($data["q{$i}"]) || $data["q{$i}"] === null) {
+                        $missing_questions[] = $i;
+                    }
+                }
+                $message = get_string('complete_all_questions', 'block_chaside') . ' (' . count($missing_questions) . ' preguntas restantes)';
+                redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
+            }
+            break;
+            
+        case 'save':
+        default:
+            // Solo guardar sin navegar
+            redirect($PAGE->url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
+            break;
     }
 }
 
@@ -184,35 +240,47 @@ for ($i = $start_question; $i <= $end_question; $i++) {
 // Navegación
 echo html_writer::start_tag('div', array('class' => 'mt-4 d-flex justify-content-between'));
 
+// Columna izquierda: Botón anterior
+echo html_writer::start_tag('div');
 if ($page > 1) {
-    echo html_writer::link(
-        new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1)),
-        get_string('previous', 'block_chaside'),
-        array('class' => 'btn btn-secondary')
-    );
+    echo html_writer::empty_tag('input', array(
+        'type' => 'submit',
+        'name' => 'action',
+        'value' => 'previous',
+        'class' => 'btn btn-secondary'
+    ));
+    echo html_writer::tag('span', ' ' . get_string('previous', 'block_chaside'), array('class' => 'ms-2'));
 } else {
     echo html_writer::tag('span', '');
 }
+echo html_writer::end_tag('div');
 
+// Columna derecha: Botones de acción
 echo html_writer::start_tag('div');
 echo html_writer::empty_tag('input', array(
     'type' => 'submit',
-    'value' => get_string('save_progress', 'block_chaside'),
+    'name' => 'action',
+    'value' => 'save',
     'class' => 'btn btn-info me-2'
 ));
+echo html_writer::tag('span', get_string('save_progress', 'block_chaside'), array('class' => 'me-2'));
 
 if ($page < $total_pages) {
-    echo html_writer::link(
-        new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1)),
-        get_string('next', 'block_chaside'),
-        array('class' => 'btn btn-primary')
-    );
+    echo html_writer::empty_tag('input', array(
+        'type' => 'submit',
+        'name' => 'action',
+        'value' => 'next',
+        'class' => 'btn btn-primary'
+    ));
+    echo html_writer::tag('span', ' ' . get_string('next', 'block_chaside'), array('class' => 'ms-2'));
 } else {
     echo html_writer::empty_tag('input', array(
         'type' => 'submit',
-        'value' => get_string('finish', 'block_chaside'),
+        'name' => 'action',
+        'value' => 'finish',
         'class' => 'btn btn-success'
     ));
+    echo html_writer::tag('span', ' ' . get_string('finish', 'block_chaside'), array('class' => 'ms-2'));
 }
 echo html_writer::end_tag('div');
 
