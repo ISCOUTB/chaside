@@ -31,7 +31,9 @@ $facade = new ChasideFacade();
 $export_data = array();
 
 foreach ($responses as $response) {
-    $scores = $facade->calculate_scores($response);
+    // Convert stdClass to array for the facade
+    $response_array = (array) $response;
+    $scores = $facade->calculate_scores($response_array);
     $top_areas = $facade->get_top_areas($scores, 3);
     
     $export_data[] = array(

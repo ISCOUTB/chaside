@@ -65,9 +65,12 @@ class block_chaside extends block_base {
     private function show_student_results($response) {
         global $COURSE;
         
+        // Convert stdClass object to array for the facade
+        $response_array = (array) $response;
+        
         // Calculate scores using the facade
         $facade = new ChasideFacade();
-        $scores = $facade->calculate_scores($response);
+        $scores = $facade->calculate_scores($response_array);
         $top_areas = $facade->get_top_areas($scores, 3);
         
         echo '<div style="padding: 10px;">';

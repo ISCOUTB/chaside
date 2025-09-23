@@ -120,8 +120,9 @@ if (!empty($enrolled_students)) {
                 $status = '<span class="badge badge-success">' . get_string('completed', 'block_chaside') . '</span>';
                 $date = userdate($response->timecompleted);
                 
-                // Calculate top area
-                $scores = $facade->calculate_scores($response);
+                // Calculate top area - convert stdClass to array
+                $response_array = (array) $response;
+                $scores = $facade->calculate_scores($response_array);
                 $top_areas = $facade->get_top_areas($scores, 1);
                 if (!empty($top_areas)) {
                     $top_area = get_string('area_' . strtolower($top_areas[0]['area']), 'block_chaside');

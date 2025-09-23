@@ -12,6 +12,13 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.5] - 2025-01-23
+
+### Corregido
+- **Error de tipos**: Corregido error "Cannot use object of type stdClass as array" al calcular puntuaciones
+- **Compatibilidad**: Conversión automática de objetos stdClass a arrays en todas las funciones de cálculo
+- **Estabilidad**: Corregido en block_chaside.php, manage.php y export.php para manejo consistente de datos
+
 ## [1.2.4] - 2025-01-23
 
 ### Agregado
