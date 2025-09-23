@@ -16,6 +16,7 @@ $string['start_test'] = 'Iniciar Test';
 $string['continue_test'] = 'Continuar Test';
 $string['view_results'] = 'Ver Resultados';
 $string['test_completed'] = 'Test Completado';
+$string['date_not_available'] = 'Fecha no disponible';
 
 $string['previous'] = 'Anterior';
 $string['next'] = 'Siguiente';
@@ -30,6 +31,8 @@ $string['no'] = 'NO';
 $string['your_results'] = 'Tus Resultados';
 $string['area_scores'] = 'Puntuaciones por Área';
 $string['top_areas'] = 'Tus Áreas Principales';
+$string['your_top_area'] = 'Tu Área Principal';
+$string['other_strong_areas'] = 'Otras Áreas Fuertes';
 $string['area_description'] = 'Descripción del Área';
 $string['career_suggestions'] = 'Sugerencias de Carrera';
 
@@ -225,3 +228,21 @@ $string['export_outdoor_score'] = 'Puntuación Aire Libre';
 $string['export_executive_score'] = 'Puntuación Ejecutiva';
 $string['export_top_area'] = 'Área Principal';
 $string['export_score'] = 'Puntuación';
+
+// Enhanced block display strings
+$string['your_top_area'] = 'Tu Área Principal';
+$string['other_strong_areas'] = 'Otras Áreas Destacadas';
+$string['vocational_orientation'] = 'Orientación Vocacional';
+$string['discover_your_interests'] = 'Descubre tus intereses profesionales';
+$string['your_progress'] = 'Tu Progreso';
+$string['what_is_chaside'] = '¿Qué es CHASIDE?';
+$string['chaside_description'] = 'Un test científico que identifica tus intereses vocacionales en 7 áreas profesionales para ayudarte a tomar decisiones académicas y profesionales informadas.';
+$string['feature_98_questions'] = '98 preguntas estratégicas';
+$string['feature_7_areas'] = '7 áreas vocacionales';
+$string['feature_instant_results'] = 'Resultados inmediatos';
+
+// Management interface strings
+$string['course_overview'] = 'Resumen del curso';
+$string['completion_rate'] = 'Tasa de finalización';
+$string['recent_completions'] = 'Finalizaciones recientes';
+$string['students_completed'] = 'estudiantes completaron';

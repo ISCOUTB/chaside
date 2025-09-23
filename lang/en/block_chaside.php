@@ -16,6 +16,7 @@ $string['start_test'] = 'Start Test';
 $string['continue_test'] = 'Continue Test';
 $string['view_results'] = 'View Results';
 $string['test_completed'] = 'Test Completed';
+$string['date_not_available'] = 'Date not available';
 
 $string['previous'] = 'Previous';
 $string['next'] = 'Next';
@@ -30,6 +31,8 @@ $string['no'] = 'NO';
 $string['your_results'] = 'Your Results';
 $string['area_scores'] = 'Area Scores';
 $string['top_areas'] = 'Your Top Areas';
+$string['your_top_area'] = 'Your Top Area';
+$string['other_strong_areas'] = 'Other Strong Areas';
 $string['area_description'] = 'Area Description';
 $string['career_suggestions'] = 'Career Suggestions';
 
@@ -224,3 +227,21 @@ $string['export_outdoor_score'] = 'Outdoor Score';
 $string['export_executive_score'] = 'Executive Score';
 $string['export_top_area'] = 'Top Area';
 $string['export_score'] = 'Score';
+
+// Enhanced block display strings
+$string['your_top_area'] = 'Your Top Area';
+$string['other_strong_areas'] = 'Other Strong Areas';
+$string['vocational_orientation'] = 'Vocational Orientation';
+$string['discover_your_interests'] = 'Discover your professional interests';
+$string['your_progress'] = 'Your Progress';
+$string['what_is_chaside'] = 'What is CHASIDE?';
+$string['chaside_description'] = 'A scientific test that identifies your vocational interests across 7 professional areas to help you make informed academic and career decisions.';
+$string['feature_98_questions'] = '98 strategic questions';
+$string['feature_7_areas'] = '7 vocational areas';
+$string['feature_instant_results'] = 'Instant results';
+
+// Management interface strings
+$string['course_overview'] = 'Course overview';
+$string['completion_rate'] = 'Completion rate';
+$string['recent_completions'] = 'Recent completions';
+$string['students_completed'] = 'students completed';
