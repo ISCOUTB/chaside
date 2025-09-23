@@ -87,9 +87,6 @@ class block_chaside extends block_base {
         echo '<a href="' . $url . '" class="btn btn-sm btn-secondary">' . get_string('view_detailed_results', 'block_chaside') . '</a>';
         echo '</div>';
     }
-        
-        return $this->content;
-    }
     
     public function applicable_formats() {
         return array('course' => true, 'my' => true);
@@ -135,11 +132,14 @@ class ChasideFacade {
         return $scores;
     }
     
-    public function get_top_areas($scores) {
+    public function get_top_areas($scores, $limit = 7) {
         arsort($scores);
         $top_areas = array();
+        $count = 0;
         foreach ($scores as $area => $score) {
+            if ($count >= $limit) break;
             $top_areas[] = array('area' => $area, 'score' => $score);
+            $count++;
         }
         return $top_areas;
     }
