@@ -12,6 +12,13 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.6] - 2025-01-23
+
+### Corregido
+- **Error de sintaxis**: Corregido "syntax error, unexpected token '+'" en view_results.php línea 120
+- **Expresiones PHP**: Movida la evaluación de expresiones matemáticas fuera de las cadenas interpoladas
+- **Visualización de resultados**: Los resultados del test ahora se muestran correctamente sin errores de sintaxis
+
 ## [1.2.5] - 2025-01-23
 
 ### Corregido

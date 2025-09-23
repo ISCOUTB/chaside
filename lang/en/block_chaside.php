@@ -187,3 +187,19 @@ $string['test_completed_success'] = 'Test completed successfully! You can view y
 $string['progress_saved'] = 'Your progress has been saved. Continue to the next page.';
 $string['complete_all_questions'] = 'Please complete all questions before finishing the test.';
 $string['complete_current_page'] = 'Please complete all questions on this page before continuing.';
+$string['completion_date_label'] = 'Completion Date:';
+
+// Export CSV headers
+$string['export_student_id'] = 'Student ID';
+$string['export_student_name'] = 'Student Name';
+$string['export_student_email'] = 'Email';
+$string['export_completion_date'] = 'Completion Date';
+$string['export_scientific_score'] = 'Scientific Score';
+$string['export_humanistic_score'] = 'Humanistic Score';
+$string['export_artistic_score'] = 'Artistic Score';
+$string['export_social_score'] = 'Social Score';
+$string['export_entrepreneurial_score'] = 'Entrepreneurial Score';
+$string['export_outdoor_score'] = 'Outdoor Score';
+$string['export_executive_score'] = 'Executive Score';
+$string['export_top_area'] = 'Top Area';
+$string['export_score'] = 'Score';

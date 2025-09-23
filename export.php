@@ -68,8 +68,27 @@ if ($format == 'csv') {
     // Add BOM for UTF-8
     fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF));
     
-    // Add headers
-    fputcsv($fp, array_keys($export_data[0]));
+    // Add translated headers
+    $headers = array(
+        get_string('export_student_id', 'block_chaside'),
+        get_string('export_student_name', 'block_chaside'),
+        get_string('export_student_email', 'block_chaside'),
+        get_string('export_completion_date', 'block_chaside'),
+        get_string('export_scientific_score', 'block_chaside'),
+        get_string('export_humanistic_score', 'block_chaside'),
+        get_string('export_artistic_score', 'block_chaside'),
+        get_string('export_social_score', 'block_chaside'),
+        get_string('export_entrepreneurial_score', 'block_chaside'),
+        get_string('export_outdoor_score', 'block_chaside'),
+        get_string('export_executive_score', 'block_chaside'),
+        get_string('export_top_area', 'block_chaside') . ' 1',
+        get_string('export_top_area', 'block_chaside') . ' 1 ' . get_string('export_score', 'block_chaside'),
+        get_string('export_top_area', 'block_chaside') . ' 2', 
+        get_string('export_top_area', 'block_chaside') . ' 2 ' . get_string('export_score', 'block_chaside'),
+        get_string('export_top_area', 'block_chaside') . ' 3',
+        get_string('export_top_area', 'block_chaside') . ' 3 ' . get_string('export_score', 'block_chaside')
+    );
+    fputcsv($fp, $headers);
     
     // Add data
     foreach ($export_data as $row) {

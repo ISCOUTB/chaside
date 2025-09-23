@@ -64,7 +64,7 @@ echo html_writer::tag('h2', get_string('your_results', 'block_chaside'));
 if ($userid != $USER->id) {
     $user = $DB->get_record('user', array('id' => $userid));
     echo html_writer::tag('h3', fullname($user));
-    echo html_writer::tag('p', 'Completion Date: ' . userdate($response->timemodified));
+    echo html_writer::tag('p', get_string('completion_date_label', 'block_chaside') . ' ' . userdate($response->timemodified));
 }
 
 // Gráfico de barras simple con las puntuaciones
@@ -117,7 +117,8 @@ for ($i = 0; $i < min(3, count($top_areas)); $i++) {
     
     echo html_writer::start_tag('div', array('class' => 'card mb-3'));
     echo html_writer::start_tag('div', array('class' => 'card-header'));
-    echo html_writer::tag('h4', "{$i + 1}. {$area_name} ({$score} puntos)", array('class' => 'card-title'));
+    $position = $i + 1;
+    echo html_writer::tag('h4', "{$position}. {$area_name} ({$score} puntos)", array('class' => 'card-title'));
     echo html_writer::end_tag('div');
     echo html_writer::start_tag('div', array('class' => 'card-body'));
     echo html_writer::tag('p', $description, array('class' => 'card-text'));
