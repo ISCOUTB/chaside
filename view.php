@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($existing_response->score_d)) $data['score_d'] = $existing_response->score_d;
         if (isset($existing_response->score_e)) $data['score_e'] = $existing_response->score_e;
         if (isset($existing_response->is_completed)) $data['is_completed'] = $existing_response->is_completed;
-        if (isset($existing_response->timecompleted)) $data['timecompleted'] = $existing_response->timecompleted;
+        if (isset($existing_response->timemodified)) $data['timemodified'] = $existing_response->timemodified;
         if (isset($existing_response->timecreated)) $data['timecreated'] = $existing_response->timecreated;
     } else {
         $data['timecreated'] = time();
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['score_d'] = $scores['D'];
                 $data['score_e'] = $scores['E'];
                 $data['is_completed'] = 1;
-                $data['timecompleted'] = time();
+                $data['timemodified'] = time();
                 
                 // Actualizar con las puntuaciones finales
                 $DB->update_record('block_chaside_responses', $data);

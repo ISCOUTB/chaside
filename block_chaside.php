@@ -70,8 +70,8 @@ class block_chaside extends block_base {
         
         // Completion date
         $completion_date = '';
-        if (isset($response->timecompleted) && $response->timecompleted > 0) {
-            $completion_date = userdate($response->timecompleted, get_string('strftimedatefullshort'));
+        if (isset($response->timemodified) && $response->timemodified > 0) {
+            $completion_date = userdate($response->timemodified, get_string('strftimedatefullshort'));
         } else {
             $completion_date = get_string('date_not_available', 'block_chaside');
         }
@@ -349,7 +349,7 @@ class block_chaside extends block_base {
         if ($total_completed > 0) {
             $recent_responses = $DB->get_records('block_chaside_responses', 
                 array('courseid' => $COURSE->id, 'is_completed' => 1), 
-                'timecompleted DESC', '*', 0, 3);
+                'timemodified DESC', '*', 0, 3);
                 
             echo '<div class="chaside-recent mb-3">';
             echo '<h6 class="mb-2">' . get_string('recent_completions', 'block_chaside') . '</h6>';
@@ -357,7 +357,7 @@ class block_chaside extends block_base {
                 $user = $DB->get_record('user', array('id' => $response->userid));
                 echo '<div class="d-flex justify-content-between align-items-center mb-1">';
                 echo '<span class="small">' . fullname($user) . '</span>';
-                echo '<span class="badge badge-success small">' . userdate($response->timecompleted, '%d/%m') . '</span>';
+                echo '<span class="badge badge-success small">' . userdate($response->timemodified, '%d/%m') . '</span>';
                 echo '</div>';
             }
             echo '</div>';

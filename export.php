@@ -19,7 +19,7 @@ $responses = $DB->get_records_sql("
     FROM {block_chaside_responses} cr
     JOIN {user} u ON cr.userid = u.id
     WHERE cr.courseid = ? AND cr.is_completed = 1
-    ORDER BY cr.timecompleted DESC
+    ORDER BY cr.timemodified DESC
 ", array($courseid));
 
 if (empty($responses)) {
@@ -40,7 +40,7 @@ foreach ($responses as $response) {
         'student_id' => $response->userid,
         'student_name' => $response->firstname . ' ' . $response->lastname,
         'student_email' => $response->email,
-        'completion_date' => date('Y-m-d H:i:s', $response->timecompleted),
+        'completion_date' => date('Y-m-d H:i:s', $response->timemodified),
         'scientific_score' => $scores['C'],
         'humanistic_score' => $scores['H'],
         'artistic_score' => $scores['A'],

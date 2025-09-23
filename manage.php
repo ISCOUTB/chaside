@@ -36,8 +36,8 @@ $completion_times = array();
 foreach ($responses as $response) {
     if ($response->is_completed) {
         $total_completed++;
-        if ($response->timecompleted > 0) {
-            $completion_times[] = $response->timecompleted - $response->timemodified;
+        if ($response->timemodified > 0) {
+            $completion_times[] = $response->timemodified - $response->timecreated;
         }
     } else {
         $total_in_progress++;
@@ -118,7 +118,7 @@ if (!empty($enrolled_students)) {
         if ($response) {
             if ($response->is_completed) {
                 $status = '<span class="badge badge-success">' . get_string('completed', 'block_chaside') . '</span>';
-                $date = userdate($response->timecompleted);
+                $date = userdate($response->timemodified);
                 
                 // Calculate top area - convert stdClass to array
                 $response_array = (array) $response;
