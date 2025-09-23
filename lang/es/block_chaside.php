@@ -182,3 +182,5 @@ $string['top_area'] = 'Área Principal';
 $string['no_responses_yet'] = 'Aún no se han enviado respuestas.';
 $string['enrolled_students'] = 'Estudiantes Matriculados';
 $string['teachers_redirect_message'] = 'Los profesores y administradores no pueden realizar el test. Has sido redirigido a la página de gestión.';
+$string['back_to_course'] = 'Volver al Curso';
+$string['test_completed_success'] = '¡Test completado exitosamente! Puedes ver tus resultados en el bloque CHASIDE.';

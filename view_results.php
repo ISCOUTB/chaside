@@ -131,7 +131,7 @@ echo html_writer::end_tag('div');
 echo html_writer::start_tag('div', array('class' => 'mt-4'));
 echo html_writer::link(
     new moodle_url('/course/view.php', array('id' => $courseid)),
-    'Volver al curso',
+    get_string('back_to_course', 'block_chaside'),
     array('class' => 'btn btn-secondary me-2')
 );
 echo html_writer::end_tag('div');

@@ -74,17 +74,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['is_completed'] = 0;
     }
     
-    if ($existing_response) {
-        $data['id'] = $existing_response->id;
-        $DB->update_record('block_chaside_responses', $data);
-    } else {
-        $data['timecreated'] = time();
-        $DB->insert_record('block_chaside_responses', $data);
-    }
-    
     if ($completed) {
-        redirect(new moodle_url('/blocks/chaside/view_results.php', array('courseid' => $courseid, 'blockid' => $blockid)));
+        // Marcar el test como completado con la fecha
+        $data['timecompleted'] = time();
+        
+        if ($existing_response) {
+            $data['id'] = $existing_response->id;
+            $DB->update_record('block_chaside_responses', $data);
+        } else {
+            $data['timecreated'] = time();
+            $DB->insert_record('block_chaside_responses', $data);
+        }
+        
+        // Redirigir al curso con mensaje de éxito
+        $course_url = new moodle_url('/course/view.php', array('id' => $courseid));
+        redirect($course_url, get_string('test_completed_success', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
     } else {
+        if ($existing_response) {
+            $data['id'] = $existing_response->id;
+            $DB->update_record('block_chaside_responses', $data);
+        } else {
+            $data['timecreated'] = time();
+            $DB->insert_record('block_chaside_responses', $data);
+        }
+        
         redirect(new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page)));
     }
 }

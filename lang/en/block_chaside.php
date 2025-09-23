@@ -181,3 +181,5 @@ $string['top_area'] = 'Top Area';
 $string['no_responses_yet'] = 'No responses have been submitted yet.';
 $string['enrolled_students'] = 'Enrolled Students';
 $string['teachers_redirect_message'] = 'Teachers and administrators cannot take the test. You have been redirected to the management page.';
+$string['back_to_course'] = 'Back to Course';
+$string['test_completed_success'] = 'Test completed successfully! You can view your results in the CHASIDE block.';
