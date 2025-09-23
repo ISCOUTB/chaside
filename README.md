@@ -128,14 +128,75 @@ cd chaside
 ln -s $(pwd) /path/to/moodle/blocks/chaside
 ```
 
-### Ejecutar Tests
+### GitHub Actions y Automatización
+
+Este proyecto incluye workflows automatizados para garantizar la calidad del código y facilitar los releases:
+
+#### 🔄 Continuous Integration (CI)
+- **Archivo**: `.github/workflows/ci.yml`
+- **Triggers**: Push a `main`/`develop`, Pull Requests
+- **Funciones**:
+  - Validación de sintaxis PHP
+  - Verificación de estructura de archivos
+  - Comprobación de formato de versiones
+  - Análisis de seguridad básico
+  - Verificación de changelog
+
+#### 🚀 Automated Release
+- **Archivo**: `.github/workflows/release.yml`
+- **Triggers**: Cambios en `version.php`, Ejecución manual
+- **Funciones**:
+  - Detección automática de nuevas versiones
+  - Creación de tags Git automáticos
+  - Generación de releases en GitHub
+  - Empaquetado automático del plugin (ZIP)
+  - Extracción automática de changelog
+
+#### 📦 Como Funciona el Release Automático
+
+1. **Actualiza la versión** en `version.php`:
+   ```php
+   $plugin->release = '1.3.0';  // Nueva versión
+   ```
+
+2. **Actualiza el CHANGELOG.md** con los cambios:
+   ```markdown
+   ## [1.3.0] - 2025-01-23
+   ### Añadido
+   - Nueva funcionalidad X
+   ```
+
+3. **Haz commit y push**:
+   ```bash
+   git add version.php CHANGELOG.md
+   git commit -m "feat: nueva funcionalidad X - bump to v1.3.0"
+   git push origin main
+   ```
+
+4. **GitHub Actions automáticamente**:
+   - Detecta el cambio de versión
+   - Crea el tag `v1.3.0`
+   - Genera el release con el ZIP
+   - Incluye el changelog correspondiente
+
+#### 🔧 Release Manual
+También puedes forzar un release manualmente:
+1. Ve a `Actions` en GitHub
+2. Selecciona `Automated Release`
+3. Haz clic en `Run workflow`
+4. Marca `Force release` si es necesario
+
+### Ejecutar Tests Localmente
 
 ```bash
 # Tests unitarios (si están disponibles)
 vendor/bin/phpunit
 
-# Validación de código
-php -l *.php
+# Validación de código PHP
+find . -name "*.php" -exec php -l {} \;
+
+# Verificar estructura de archivos
+bash .github/workflows/check-structure.sh
 ```
 
 ## 📝 Contribuir

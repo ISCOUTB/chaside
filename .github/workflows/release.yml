@@ -1,226 +1,151 @@
-name: Release Management
+name: Automated Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main ]
+    paths:
+      - 'version.php'
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to release (e.g., v1.0.0)'
-        required: true
-        type: string
+      force_release:
+        description: 'Force release even if version exists'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
-  create-release:
-    name: Create GitHub Release
+  check-version:
     runs-on: ubuntu-latest
-    
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      release_id: ${{ steps.create_release.outputs.id }}
-    
+      should-release: ${{ steps.version-check.outputs.should-release }}
+      version: ${{ steps.version-check.outputs.version }}
+      release-name: ${{ steps.version-check.outputs.release-name }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Get version
-      id: get_version
-      run: |
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          VERSION="${{ github.event.inputs.version }}"
-        else
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "📋 Preparando release para versión: $VERSION"
-    
-    - name: Generate changelog
-      id: changelog
-      run: |
-        echo "📝 Generando changelog..."
-        
-        # Obtener el tag anterior
-        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-        
-        if [[ -n "$PREVIOUS_TAG" ]]; then
-          echo "📅 Cambios desde $PREVIOUS_TAG:"
-          CHANGELOG=$(git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
-        else
-          echo "📅 Release inicial:"
-          CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
-        fi
-        
-        # Crear body del release
-        RELEASE_BODY="## 🚀 Novedades en ${{ steps.get_version.outputs.version }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-### 📋 Cambios Incluidos
-$CHANGELOG
-
-### 📦 Instalación
-1. Descarga el archivo \`chaside-${{ steps.get_version.outputs.version }}.zip\`
-2. Extrae en el directorio \`blocks/\` de tu instalación Moodle
-3. Visita la administración de Moodle para completar la instalación
-
-### 🔧 Compatibilidad
-- Moodle 3.9+
-- PHP 7.4+
-
-### 📞 Soporte
-Si encuentras algún problema, por favor reporta un [issue](https://github.com/ISCOUTB/chaside/issues)."
-        
-        # Guardar en archivo temporal
-        echo "$RELEASE_BODY" > /tmp/release_body.md
-        
-        echo "✅ Changelog generado"
-    
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        release_name: CHASIDE ${{ steps.get_version.outputs.version }}
-        body_path: /tmp/release_body.md
-        draft: false
-        prerelease: ${{ contains(steps.get_version.outputs.version, 'beta') || contains(steps.get_version.outputs.version, 'alpha') || contains(steps.get_version.outputs.version, 'rc') }}
-
-  build-and-upload:
-    name: Build and Upload Assets
-    runs-on: ubuntu-latest
-    needs: create-release
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
-    
-    - name: Get version
-      id: get_version
-      run: |
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          VERSION="${{ github.event.inputs.version }}"
-        else
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-    
-    - name: Validate plugin structure
-      run: |
-        echo "🔍 Validando estructura del plugin..."
-        
-        # Verificar archivos requeridos
-        REQUIRED_FILES=("version.php" "block_chaside.php" "db/access.php" "db/install.xml")
-        
-        for file in "${REQUIRED_FILES[@]}"; do
-          if [[ ! -f "$file" ]]; then
-            echo "❌ Archivo requerido faltante: $file"
-            exit 1
-          fi
-          echo "✅ $file encontrado"
-        done
-        
-        # Validar version.php
-        php -l version.php
-        php -r "
-        require_once 'version.php';
-        if (!isset(\$plugin->component) || \$plugin->component !== 'block_chaside') {
-          echo '❌ Componente incorrecto en version.php' . PHP_EOL;
-          exit(1);
-        }
-        echo '✅ version.php válido' . PHP_EOL;
-        "
-    
-    - name: Create plugin package
-      run: |
-        echo "📦 Creando paquete del plugin..."
-        
-        # Crear directorio temporal
-        mkdir -p /tmp/release-build/chaside
-        
-        # Lista de archivos a incluir en el release
-        INCLUDE_FILES=(
-          "version.php"
-          "block_chaside.php"
-          "view.php"
-          "view_results.php"
-          "db/"
-          "lang/"
-        )
-        
-        # Copiar archivos específicos
-        for item in "${INCLUDE_FILES[@]}"; do
-          if [[ -e "$item" ]]; then
-            cp -r "$item" /tmp/release-build/chaside/
-            echo "✅ Copiado: $item"
+      - name: Check if version changed
+        id: version-check
+        run: |
+          # Extraer versión actual del archivo version.php
+          CURRENT_VERSION=$(grep -oP "(?<=\\\$plugin->release = ')[^']*" version.php)
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Verificar si ya existe un tag para esta versión (a menos que sea forzado)
+          if [ "${{ github.event.inputs.force_release }}" = "true" ]; then
+            echo "Force release enabled, proceeding..."
+            echo "should-release=true" >> $GITHUB_OUTPUT
+          elif git tag --list | grep -q "^v$CURRENT_VERSION$"; then
+            echo "Tag v$CURRENT_VERSION already exists, skipping release"
+            echo "should-release=false" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ No encontrado: $item"
+            echo "New version detected: $CURRENT_VERSION"
+            echo "should-release=true" >> $GITHUB_OUTPUT
           fi
-        done
-        
-        # Crear archivo ZIP
-        cd /tmp/release-build
-        zip -r "chaside-${{ steps.get_version.outputs.version }}.zip" chaside/
-        
-        # Crear checksum
-        sha256sum "chaside-${{ steps.get_version.outputs.version }}.zip" > "chaside-${{ steps.get_version.outputs.version }}.zip.sha256"
-        
-        # Mover archivos al workspace
-        mv "chaside-${{ steps.get_version.outputs.version }}.zip" "$GITHUB_WORKSPACE/"
-        mv "chaside-${{ steps.get_version.outputs.version }}.zip.sha256" "$GITHUB_WORKSPACE/"
-        
-        echo "📦 Paquete creado: chaside-${{ steps.get_version.outputs.version }}.zip"
-        
-        # Mostrar contenido del paquete
-        echo "📋 Contenido del paquete:"
-        unzip -l "$GITHUB_WORKSPACE/chaside-${{ steps.get_version.outputs.version }}.zip"
-    
-    - name: Upload Release Asset - ZIP
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./chaside-${{ steps.get_version.outputs.version }}.zip
-        asset_name: chaside-${{ steps.get_version.outputs.version }}.zip
-        asset_content_type: application/zip
-    
-    - name: Upload Release Asset - Checksum
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./chaside-${{ steps.get_version.outputs.version }}.zip.sha256
-        asset_name: chaside-${{ steps.get_version.outputs.version }}.zip.sha256
-        asset_content_type: text/plain
+          
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "release-name=CHASIDE Vocational Test v$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
-  notify-success:
-    name: Notify Release Success
+  create-release:
+    needs: check-version
+    if: needs.check-version.outputs.should-release == 'true'
     runs-on: ubuntu-latest
-    needs: [create-release, build-and-upload]
-    if: success()
-    
     steps:
-    - name: Get version
-      id: get_version
-      run: |
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          VERSION="${{ github.event.inputs.version }}"
-        else
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-    
-    - name: Success notification
-      run: |
-        echo "🎉 ¡Release ${{ steps.get_version.outputs.version }} creado exitosamente!"
-        echo "📦 Paquete disponible en: https://github.com/ISCOUTB/chaside/releases/tag/${{ steps.get_version.outputs.version }}"
-        echo "📋 Release ID: ${{ needs.create-release.outputs.release_id }}"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Validate PHP syntax
+        run: |
+          echo "Validating PHP syntax..."
+          find . -name "*.php" -exec php -l {} \; || exit 1
+
+      - name: Create release archive
+        run: |
+          # Crear directorio temporal para el release
+          mkdir -p release-temp/chaside
+          
+          # Copiar archivos del plugin (excluyendo .git y archivos de desarrollo)
+          rsync -av \
+            --exclude='.git*' \
+            --exclude='release-temp' \
+            --exclude='*.log' \
+            --exclude='node_modules' \
+            --exclude='.DS_Store' \
+            ./ release-temp/chaside/
+          
+          # Crear archivo ZIP
+          cd release-temp
+          zip -r ../chaside-v${{ needs.check-version.outputs.version }}.zip chaside/
+          cd ..
+          
+          # Verificar que el archivo se creó
+          ls -la chaside-v${{ needs.check-version.outputs.version }}.zip
+          
+          # Limpiar directorio temporal
+          rm -rf release-temp
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          # Extraer changelog para la versión actual
+          if [ -f "CHANGELOG.md" ]; then
+            # Buscar la sección de la versión actual
+            awk '/## \['"${{ needs.check-version.outputs.version }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md > current_changelog.md
+            
+            if [ -s current_changelog.md ]; then
+              echo "Found changelog entry for version ${{ needs.check-version.outputs.version }}"
+              echo "Changelog content:"
+              cat current_changelog.md
+            else
+              echo "No specific changelog entry found, using default message"
+              echo "### Cambios en esta versión" > current_changelog.md
+              echo "- Consultar CHANGELOG.md para detalles completos" >> current_changelog.md
+              echo "- Version: ${{ needs.check-version.outputs.version }}" >> current_changelog.md
+            fi
+          else
+            echo "### Cambios en esta versión" > current_changelog.md
+            echo "- Nueva versión del plugin CHASIDE" >> current_changelog.md
+            echo "- Version: ${{ needs.check-version.outputs.version }}" >> current_changelog.md
+          fi
+
+      - name: Create Git tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v${{ needs.check-version.outputs.version }}" -m "Release v${{ needs.check-version.outputs.version }}"
+          git push origin "v${{ needs.check-version.outputs.version }}"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          release_name: ${{ needs.check-version.outputs.release-name }}
+          body_path: current_changelog.md
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./chaside-v${{ needs.check-version.outputs.version }}.zip
+          asset_name: chaside-v${{ needs.check-version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Success notification
+        run: |
+          echo "✅ Release v${{ needs.check-version.outputs.version }} created successfully!"
+          echo "📦 Asset: chaside-v${{ needs.check-version.outputs.version }}.zip"
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.check-version.outputs.version }}"
