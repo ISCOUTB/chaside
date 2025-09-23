@@ -12,6 +12,22 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.1] - 2025-01-23
+
+### Añadido
+- **GitHub Actions**: Sistema de release automático
+- **Validación CI/CD**: Integración continua con validación de código
+- **Script de validación**: Herramienta local para verificar estructura del plugin
+- **Documentación**: Guía completa de desarrollo y release automático
+
+### Cambiado
+- **README.md**: Documentación expandida con información de GitHub Actions
+- **Workflow automático**: Release se genera automáticamente al actualizar version.php
+
+### Corregido
+- Configuración de GitHub Actions para release automático
+- Scripts de validación y empaquetado del plugin
+
 ## [1.2.0] - 2025-01-23
 
 ### Añadido
