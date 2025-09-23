@@ -41,6 +41,15 @@ $string['area_i'] = 'Entrepreneurial Initiative (I)';
 $string['area_d'] = 'Outdoor (D)';
 $string['area_e'] = 'Persuasive Executive (E)';
 
+// Area names in uppercase (for compatibility)
+$string['area_C'] = 'Scientific (C)';
+$string['area_H'] = 'Humanistic (H)';
+$string['area_A'] = 'Artistic (A)';
+$string['area_S'] = 'Social (S)';
+$string['area_I'] = 'Entrepreneurial Initiative (I)';
+$string['area_D'] = 'Outdoor (D)';
+$string['area_E'] = 'Persuasive Executive (E)';
+
 $string['desc_c'] = 'Interest in research, analysis, experimentation and solving complex problems.';
 $string['desc_h'] = 'Interest in humanities, literature, history, philosophy and the study of human beings.';
 $string['desc_a'] = 'Interest in artistic expression, creativity, design and aesthetic activities.';
@@ -48,6 +57,15 @@ $string['desc_s'] = 'Interest in helping others, social work, education and comm
 $string['desc_i'] = 'Interest in undertaking projects, innovating and leading business initiatives.';
 $string['desc_d'] = 'Interest in outdoor activities, sports and working in contact with nature.';
 $string['desc_e'] = 'Interest in persuading, selling, directing and influencing others.';
+
+// Area descriptions in uppercase (for compatibility)
+$string['desc_C'] = 'Interest in research, analysis, experimentation and solving complex problems.';
+$string['desc_H'] = 'Interest in humanities, literature, history, philosophy and the study of human beings.';
+$string['desc_A'] = 'Interest in artistic expression, creativity, design and aesthetic activities.';
+$string['desc_S'] = 'Interest in helping others, social work, education and community services.';
+$string['desc_I'] = 'Interest in undertaking projects, innovating and leading business initiatives.';
+$string['desc_D'] = 'Interest in outdoor activities, sports and working in contact with nature.';
+$string['desc_E'] = 'Interest in persuading, selling, directing and influencing others.';
 
 $string['q1'] = 'Are you interested in knowing the structure of the atom?';
 $string['q2'] = 'Do you like reading literary works?';
@@ -188,6 +206,9 @@ $string['progress_saved'] = 'Your progress has been saved. Continue to the next 
 $string['complete_all_questions'] = 'Please complete all questions before finishing the test.';
 $string['complete_current_page'] = 'Please complete all questions on this page before continuing.';
 $string['completion_date_label'] = 'Completion Date:';
+$string['questions_unanswered'] = 'questions unanswered';
+$string['questions_remaining'] = 'questions remaining';
+$string['points'] = 'points';
 
 // Export CSV headers
 $string['export_student_id'] = 'Student ID';

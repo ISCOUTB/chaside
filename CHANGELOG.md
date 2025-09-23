@@ -12,6 +12,20 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
 
+## [1.2.7] - 2025-01-23
+
+### Corregido
+- **Traducciones faltantes**: Agregadas traducciones para area_C, area_H, etc. (versiones en mayúsculas)
+- **Texto hardcoded**: Eliminado texto hardcoded "puntos", "preguntas sin responder", "preguntas restantes"
+- **Compatibilidad de áreas**: Agregadas descripciones desc_C, desc_H, etc. para compatibilidad completa
+- **Consistencia**: Uso consistente de strtolower() en todas las referencias a áreas
+- **Multiidioma completo**: Todos los mensajes de error y etiquetas ahora son traducibles
+
+### Agregado  
+- **Strings adicionales**: questions_unanswered, questions_remaining, points para mensajes dinámicos
+- **Compatibilidad doble**: Soporte tanto para áreas en mayúsculas como minúsculas
+- **Mensajes mejorados**: Conteo de preguntas faltantes ahora completamente traducible
+
 ## [1.2.6] - 2025-01-23
 
 ### Corregido

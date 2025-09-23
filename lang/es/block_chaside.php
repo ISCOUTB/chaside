@@ -41,6 +41,15 @@ $string['area_i'] = 'Iniciativa Empresarial (I)';
 $string['area_d'] = 'Aire Libre (D)';
 $string['area_e'] = 'Ejecutivo Persuasivo (E)';
 
+// Area names in uppercase (for compatibility)
+$string['area_C'] = 'Científico (C)';
+$string['area_H'] = 'Humanístico (H)';
+$string['area_A'] = 'Artístico (A)';
+$string['area_S'] = 'Social (S)';
+$string['area_I'] = 'Iniciativa Empresarial (I)';
+$string['area_D'] = 'Aire Libre (D)';
+$string['area_E'] = 'Ejecutivo Persuasivo (E)';
+
 $string['desc_c'] = 'Interés en la investigación, análisis, experimentación y resolución de problemas complejos.';
 $string['desc_h'] = 'Interés en las humanidades, literatura, historia, filosofía y el estudio del ser humano.';
 $string['desc_a'] = 'Interés en la expresión artística, creatividad, diseño y actividades estéticas.';
@@ -48,6 +57,15 @@ $string['desc_s'] = 'Interés en ayudar a otros, trabajo social, educación y se
 $string['desc_i'] = 'Interés en emprender proyectos, innovar y liderar iniciativas empresariales.';
 $string['desc_d'] = 'Interés en actividades al aire libre, deportes y trabajar en contacto con la naturaleza.';
 $string['desc_e'] = 'Interés en persuadir, vender, dirigir e influir en otros.';
+
+// Area descriptions in uppercase (for compatibility)
+$string['desc_C'] = 'Interés en la investigación, análisis, experimentación y resolución de problemas complejos.';
+$string['desc_H'] = 'Interés en las humanidades, literatura, historia, filosofía y el estudio del ser humano.';
+$string['desc_A'] = 'Interés en la expresión artística, creatividad, diseño y actividades estéticas.';
+$string['desc_S'] = 'Interés en ayudar a otros, trabajo social, educación y servicios comunitarios.';
+$string['desc_I'] = 'Interés en emprender proyectos, innovar y liderar iniciativas empresariales.';
+$string['desc_D'] = 'Interés en actividades al aire libre, deportes y trabajar en contacto con la naturaleza.';
+$string['desc_E'] = 'Interés en persuadir, vender, dirigir e influir en otros.';
 
 // Preguntas del test CHASIDE
 $string['q1'] = '¿Te interesa conocer la estructura del átomo?';
@@ -189,6 +207,9 @@ $string['progress_saved'] = 'Tu progreso ha sido guardado. Continúa a la siguie
 $string['complete_all_questions'] = 'Por favor completa todas las preguntas antes de finalizar el test.';
 $string['complete_current_page'] = 'Por favor completa todas las preguntas de esta página antes de continuar.';
 $string['completion_date_label'] = 'Fecha de Finalización:';
+$string['questions_unanswered'] = 'preguntas sin responder';
+$string['questions_remaining'] = 'preguntas restantes';
+$string['points'] = 'puntos';
 
 // Export CSV headers
 $string['export_student_id'] = 'ID Estudiante';

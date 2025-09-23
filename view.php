@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'previous':
             if ($page > 1) {
                 if (!$current_page_complete) {
-                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' ' . get_string('questions_unanswered', 'block_chaside') . ')';
                     redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
                 } else {
                     $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1));
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'next':
             if ($page < $total_pages) {
                 if (!$current_page_complete) {
-                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                    $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' ' . get_string('questions_unanswered', 'block_chaside') . ')';
                     redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
                 } else {
                     $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1));
@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $missing_questions[] = $i;
                     }
                 }
-                $message = get_string('complete_all_questions', 'block_chaside') . ' (' . count($missing_questions) . ' preguntas restantes)';
+                $message = get_string('complete_all_questions', 'block_chaside') . ' (' . count($missing_questions) . ' ' . get_string('questions_remaining', 'block_chaside') . ')';
                 redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
             }
             break;
@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         default:
             // Validar que la página actual esté completa antes de guardar
             if (!$current_page_complete) {
-                $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' preguntas sin responder)';
+                $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' ' . get_string('questions_unanswered', 'block_chaside') . ')';
                 redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
             } else {
                 // Solo guardar sin navegar

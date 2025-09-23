@@ -85,7 +85,7 @@ $colors = array(
 
 foreach ($scores as $area => $score) {
     $percentage = $max_score > 0 ? ($score / $max_score) * 100 : 0;
-    $area_name = get_string("area_{$area}", 'block_chaside');
+    $area_name = get_string("area_" . strtolower($area), 'block_chaside');
     
     echo html_writer::start_tag('div', array('class' => 'score-item mb-3'));
     echo html_writer::tag('label', "{$area_name}: {$score}", array('class' => 'score-label'));
@@ -112,13 +112,13 @@ echo html_writer::start_tag('div', array('class' => 'top-areas'));
 for ($i = 0; $i < min(3, count($top_areas)); $i++) {
     $area = $top_areas[$i]['area'];
     $score = $top_areas[$i]['score'];
-    $area_name = get_string("area_{$area}", 'block_chaside');
-    $description = get_string("desc_{$area}", 'block_chaside');
+    $area_name = get_string("area_" . strtolower($area), 'block_chaside');
+    $description = get_string("desc_" . strtolower($area), 'block_chaside');
     
     echo html_writer::start_tag('div', array('class' => 'card mb-3'));
     echo html_writer::start_tag('div', array('class' => 'card-header'));
     $position = $i + 1;
-    echo html_writer::tag('h4', "{$position}. {$area_name} ({$score} puntos)", array('class' => 'card-title'));
+    echo html_writer::tag('h4', "{$position}. {$area_name} ({$score} " . get_string('points', 'block_chaside') . ")", array('class' => 'card-title'));
     echo html_writer::end_tag('div');
     echo html_writer::start_tag('div', array('class' => 'card-body'));
     echo html_writer::tag('p', $description, array('class' => 'card-text'));
