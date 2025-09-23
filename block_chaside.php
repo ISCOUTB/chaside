@@ -22,32 +22,71 @@ class block_chaside extends block_base {
         $this->content->text = '';
         $this->content->footer = '';
         
-        if (!has_capability('block/chaside:take_test', $this->context)) {
+        if (!isloggedin() || empty($COURSE->id)) {
             return $this->content;
         }
+
+        $context = context_course::instance($COURSE->id);
         
-        // Check if user has already taken the test
-        $response = $DB->get_record('block_chaside_responses', array(
-            'userid' => $USER->id,
-            'courseid' => $COURSE->id
-        ));
-        
-        if ($response && $response->is_completed) {
-            // Show results link
-            $url = new moodle_url('/blocks/chaside/view_results.php', array(
+        // Check if user can manage responses (teacher/admin)
+        if (has_capability('block/chaside:manage_responses', $context)) {
+            // Teacher/Admin view: show management link
+            $url = new moodle_url('/blocks/chaside/manage.php', array(
                 'courseid' => $COURSE->id,
                 'blockid' => $this->instance->id
             ));
-            $this->content->text = html_writer::link($url, get_string('view_results', 'block_chaside'));
-        } else {
-            // Show test link
-            $url = new moodle_url('/blocks/chaside/view.php', array(
-                'courseid' => $COURSE->id,
-                'blockid' => $this->instance->id
+            $this->content->text = '<div class="text-center" style="padding: 10px;"><a href="' . $url . '" class="btn btn-primary">' . get_string('manage_responses', 'block_chaside') . '</a></div>';
+        } else if (has_capability('block/chaside:take_test', $context)) {
+            // Student view: check if test is completed
+            $response = $DB->get_record('block_chaside_responses', array(
+                'userid' => $USER->id,
+                'courseid' => $COURSE->id
             ));
-            $link_text = $response ? get_string('continue_test', 'block_chaside') : get_string('start_test', 'block_chaside');
-            $this->content->text = html_writer::link($url, $link_text);
+            
+            if ($response && $response->is_completed) {
+                // Show results directly in the block
+                ob_start();
+                $this->show_student_results($response);
+                $this->content->text = ob_get_clean();
+            } else {
+                // Show test link
+                $url = new moodle_url('/blocks/chaside/view.php', array(
+                    'courseid' => $COURSE->id,
+                    'blockid' => $this->instance->id
+                ));
+                $link_text = $response ? get_string('continue_test', 'block_chaside') : get_string('start_test', 'block_chaside');
+                $this->content->text = '<div class="text-center" style="padding: 10px;"><a href="' . $url . '" class="btn btn-primary">' . $link_text . '</a></div>';
+            }
         }
+        
+        return $this->content;
+    }
+    
+    private function show_student_results($response) {
+        global $COURSE;
+        
+        // Calculate scores using the facade
+        $facade = new ChasideFacade();
+        $scores = $facade->calculate_scores($response);
+        $top_areas = $facade->get_top_areas($scores, 3);
+        
+        echo '<div style="padding: 10px;">';
+        echo '<h6>' . get_string('your_results', 'block_chaside') . '</h6>';
+        echo '<div class="mb-2">';
+        echo '<strong>' . get_string('top_areas', 'block_chaside') . ':</strong><br>';
+        foreach ($top_areas as $area) {
+            echo '• ' . get_string('area_' . strtolower($area['area']), 'block_chaside') . ' (' . $area['score'] . ')<br>';
+        }
+        echo '</div>';
+        
+        // Link to detailed results
+        $url = new moodle_url('/blocks/chaside/view_results.php', array(
+            'courseid' => $COURSE->id,
+            'blockid' => $this->instance->id
+        ));
+        echo '<a href="' . $url . '" class="btn btn-sm btn-secondary">' . get_string('view_detailed_results', 'block_chaside') . '</a>';
+        echo '</div>';
+    }
         
         return $this->content;
     }

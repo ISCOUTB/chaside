@@ -161,3 +161,23 @@ $string['export_results'] = 'Export Results';
 $string['no_results'] = 'No results available.';
 $string['config_title'] = 'CHASIDE Block Configuration';
 $string['config_description'] = 'Configure CHASIDE vocational test options.';
+
+// Management strings
+$string['manage_responses'] = 'Manage Responses';
+$string['management_title'] = 'CHASIDE - Response Management';
+$string['statistics'] = 'Statistics';
+$string['total_completed'] = 'Total Completed';
+$string['participation_rate'] = 'Participation Rate';
+$string['avg_completion_time'] = 'Average Completion Time';
+$string['view_detailed_results'] = 'View Detailed Results';
+$string['download_all_results'] = 'Download All Results';
+$string['student_responses'] = 'Student Responses';
+$string['completion_status'] = 'Completion Status';
+$string['completed'] = 'Completed';
+$string['in_progress'] = 'In Progress';
+$string['not_started'] = 'Not Started';
+$string['response_date'] = 'Response Date';
+$string['top_area'] = 'Top Area';
+$string['no_responses_yet'] = 'No responses have been submitted yet.';
+$string['enrolled_students'] = 'Enrolled Students';
+$string['teachers_redirect_message'] = 'Teachers and administrators cannot take the test. You have been redirected to the management page.';

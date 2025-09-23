@@ -14,6 +14,12 @@ $context = context_course::instance($courseid);
 require_login($course);
 require_capability('block/chaside:take_test', $context);
 
+// Redirect teachers/admins to management page
+if (has_capability('block/chaside:manage_responses', $context)) {
+    $manage_url = new moodle_url('/blocks/chaside/manage.php', array('courseid' => $courseid, 'blockid' => $blockid));
+    redirect($manage_url, get_string('teachers_redirect_message', 'block_chaside'));
+}
+
 $PAGE->set_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page));
 $PAGE->set_title(get_string('test_title', 'block_chaside'));
 $PAGE->set_heading($course->fullname);
