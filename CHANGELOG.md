@@ -9,8 +9,35 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Planeado
 - Integración con sistemas de orientación vocacional externos
-- Dashboard de estadísticas para administradores
 - Exportación de resultados a PDF
+- Notificaciones automáticas para estudiantes
+
+## [1.5.0] - 2025-09-26
+
+### Agregado
+- **Panel de Administración Completo**: Implementado panel de administración con gestión completa de respuestas de estudiantes
+- **Estadísticas Avanzadas**: Dashboard con estadísticas detalladas por área CHASIDE y métricas de participación
+- **Funcionalidad de Eliminación**: Capacidad para que profesores/administradores eliminen respuestas de estudiantes
+- **Vista de Resultados para Profesores**: Profesores pueden ahora ver resultados detallados de estudiantes individuales
+- **Interface Mejorada**: Diseño modernizado con cards responsive y visualizaciones mejoradas
+- **Estadísticas por Área**: Análisis detallado de puntuaciones promedio y preferencias por cada área vocacional
+
+### Corregido
+- **Permisos de Acceso**: Solucionado problema donde profesores no podían ver resultados de estudiantes
+- **Variables Indefinidas**: Corregido error de variable $blockid indefinida en admin_view.php
+- **Capability Names**: Unificados nombres de capacidades para consistencia (viewreports vs view_reports)
+- **Gestión de Parámetros**: Mejorado manejo de parámetros userid y blockid en URLs
+
+### Mejorado
+- **Traducciones Completas**: Agregadas todas las cadenas de traducción faltantes en español e inglés
+- **UI/UX**: Interface completamente rediseñada con Bootstrap y FontAwesome
+- **Navegación**: Enlaces y navegación mejorados entre vistas del panel de administración
+- **Responsividad**: Diseño completamente responsive para dispositivos móviles
+
+### Técnico
+- **Capacidades**: Implementado sistema completo de capacidades y permisos
+- **Base de Datos**: Optimizadas consultas para mejor rendimiento
+- **Arquitectura**: Código reorganizado para mejor mantenibilidad
 
 ## [1.2.7] - 2025-01-23
 

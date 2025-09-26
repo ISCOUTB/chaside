@@ -54,7 +54,7 @@ $capabilities = array(
         )
     ),
 
-    'block/chaside:view_reports' => array(
+    'block/chaside:viewreports' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(

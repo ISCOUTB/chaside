@@ -53,6 +53,18 @@ class block_chaside extends block_base {
                 $this->content->text = ob_get_clean();
             }
         }
+
+        // Add link to admin dashboard for teachers/admins.
+        if (has_capability('block/chaside:viewreports', $context)) {
+            $adminurl = new moodle_url('/blocks/chaside/admin_view.php', ['courseid' => $this->page->course->id, 'blockid' => $this->instance->id]);
+            $this->content->footer = html_writer::div(
+                html_writer::link($adminurl, get_string('admin_dashboard', 'block_chaside'), [
+                    'class' => 'btn btn-primary btn-sm btn-block',
+                    'title' => get_string('admin_dashboard', 'block_chaside')
+                ]),
+                'text-center mt-2'
+            );
+        }
         
         return $this->content;
     }
@@ -363,16 +375,6 @@ class block_chaside extends block_base {
             echo '</div>';
         }
         
-        // Action buttons
-        echo '<div class="chaside-actions text-center">';
-        $url = new moodle_url('/blocks/chaside/manage.php', array(
-            'courseid' => $COURSE->id,
-            'blockid' => $this->instance->id
-        ));
-        echo '<a href="' . $url . '" class="btn btn-primary btn-sm btn-block">';
-        echo '<i class="fa fa-cog"></i> ' . get_string('manage_responses', 'block_chaside');
-        echo '</a>';
-        echo '</div>';
         
         echo '</div>';
         

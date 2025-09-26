@@ -236,34 +236,64 @@ for ($i = $start_question; $i <= $end_question; $i++) {
         $current_value = $existing_response->{"q{$i}"};
     }
     
-    echo html_writer::start_tag('div', array('class' => 'form-group mb-3'));
-    echo html_writer::tag('label', "{$i}. {$question_text}", array('class' => 'form-label'));
+    // Contenedor principal de la pregunta con borde y espaciado
+    echo html_writer::start_tag('div', array('class' => 'card mb-3 shadow-sm'));
+    echo html_writer::start_tag('div', array('class' => 'card-body'));
     
-    echo html_writer::start_tag('div', array('class' => 'form-check-inline'));
+    // Número y texto de la pregunta
+    echo html_writer::start_tag('div', array('class' => 'row align-items-center'));
+    echo html_writer::start_tag('div', array('class' => 'col-md-8'));
+    echo html_writer::tag('h6', 
+        html_writer::tag('span', $i, array('class' => 'badge bg-primary me-2')) . $question_text, 
+        array('class' => 'mb-3 question-text')
+    );
+    echo html_writer::end_tag('div');
+    
+    // Opciones de respuesta organizadas
+    echo html_writer::start_tag('div', array('class' => 'col-md-4'));
+    echo html_writer::start_tag('div', array('class' => 'btn-group w-100', 'role' => 'group', 'aria-label' => 'Respuesta'));
+    
+    // Opción SÍ
+    $yes_classes = 'btn btn-outline-success flex-fill radio-btn';
+    if ($current_value === '1') {
+        $yes_classes = 'btn btn-success flex-fill radio-btn active';
+    }
+    echo html_writer::start_tag('label', array('class' => $yes_classes, 'for' => "q{$i}_yes"));
     echo html_writer::empty_tag('input', array(
         'type' => 'radio',
         'name' => "q{$i}",
         'value' => '1',
         'id' => "q{$i}_yes",
-        'class' => 'form-check-input',
+        'style' => 'display: none;',
         'checked' => ($current_value === '1') ? 'checked' : null
     ));
-    echo html_writer::tag('label', get_string('yes', 'block_chaside'), array('for' => "q{$i}_yes", 'class' => 'form-check-label ms-1'));
-    echo html_writer::end_tag('div');
+    echo html_writer::tag('i', '', array('class' => 'fa fa-check me-1'));
+    echo get_string('yes', 'block_chaside');
+    echo html_writer::end_tag('label');
     
-    echo html_writer::start_tag('div', array('class' => 'form-check-inline ms-3'));
+    // Opción NO
+    $no_classes = 'btn btn-outline-danger flex-fill radio-btn';
+    if ($current_value === '0') {
+        $no_classes = 'btn btn-danger flex-fill radio-btn active';
+    }
+    echo html_writer::start_tag('label', array('class' => $no_classes, 'for' => "q{$i}_no"));
     echo html_writer::empty_tag('input', array(
         'type' => 'radio',
         'name' => "q{$i}",
         'value' => '0',
         'id' => "q{$i}_no",
-        'class' => 'form-check-input',
+        'style' => 'display: none;',
         'checked' => ($current_value === '0') ? 'checked' : null
     ));
-    echo html_writer::tag('label', get_string('no', 'block_chaside'), array('for' => "q{$i}_no", 'class' => 'form-check-label ms-1'));
-    echo html_writer::end_tag('div');
+    echo html_writer::tag('i', '', array('class' => 'fa fa-times me-1'));
+    echo get_string('no', 'block_chaside');
+    echo html_writer::end_tag('label');
     
-    echo html_writer::end_tag('div');
+    echo html_writer::end_tag('div'); // btn-group
+    echo html_writer::end_tag('div'); // col-md-4
+    echo html_writer::end_tag('div'); // row
+    echo html_writer::end_tag('div'); // card-body
+    echo html_writer::end_tag('div'); // card
 }
 
 // Navegación
@@ -316,12 +346,129 @@ echo html_writer::end_tag('div');
 echo html_writer::end_tag('div');
 echo html_writer::end_tag('form');
 
-// JavaScript para validación en tiempo real
+// Agregar estilos CSS personalizados
+echo html_writer::start_tag('style');
+echo "
+.question-text {
+    font-weight: 500;
+    color: #212529;
+    line-height: 1.4;
+}
+
+.card {
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0,123,255,0.1) !important;
+}
+
+.btn-group label {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+.btn-group label:hover {
+    transform: translateY(-1px);
+}
+
+.radio-btn {
+    position: relative;
+}
+
+.radio-btn input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.badge {
+    font-size: 0.85em;
+    min-width: 24px;
+    text-align: center;
+    color: #ffffff !important;
+}
+
+.progress {
+    height: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #007bff 0%, #28a745 100%);
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .btn-group {
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+    
+    .btn-group label {
+        margin-bottom: 5px;
+        border-radius: 4px !important;
+    }
+    
+    .col-md-8, .col-md-4 {
+        margin-bottom: 15px;
+    }
+}
+
+.question-text {
+    margin-bottom: 0 !important;
+}
+
+.fa {
+    font-size: 0.9em;
+}
+";
+echo html_writer::end_tag('style');
+
+// JavaScript para validación en tiempo real y manejo de botones
 echo html_writer::start_tag('script');
 echo "
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     const radioInputs = form.querySelectorAll('input[type=\"radio\"]');
+    
+    // Función para actualizar el estado visual de los botones
+    function updateButtonStates(questionName) {
+        const yesLabel = form.querySelector('label[for=\"' + questionName + '_yes\"]');
+        const noLabel = form.querySelector('label[for=\"' + questionName + '_no\"]');
+        const yesInput = form.querySelector('#' + questionName + '_yes');
+        const noInput = form.querySelector('#' + questionName + '_no');
+        
+        if (yesInput && yesInput.checked) {
+            yesLabel.className = yesLabel.className.replace('btn-outline-success', 'btn-success').replace(' active', '') + ' active';
+            noLabel.className = noLabel.className.replace('btn-danger', 'btn-outline-danger').replace(' active', '');
+        } else if (noInput && noInput.checked) {
+            noLabel.className = noLabel.className.replace('btn-outline-danger', 'btn-danger').replace(' active', '') + ' active';
+            yesLabel.className = yesLabel.className.replace('btn-success', 'btn-outline-success').replace(' active', '');
+        } else {
+            yesLabel.className = yesLabel.className.replace('btn-success', 'btn-outline-success').replace(' active', '');
+            noLabel.className = noLabel.className.replace('btn-danger', 'btn-outline-danger').replace(' active', '');
+        }
+    }
+    
+    // Agregar event listeners para manejar clicks en los botones
+    const radioButtons = form.querySelectorAll('.radio-btn');
+    radioButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const input = this.querySelector('input[type=\"radio\"]');
+            if (input) {
+                input.checked = true;
+                updateButtonStates(input.name);
+                validateCurrentPage();
+            }
+        });
+    });
     const saveBtn = form.querySelector('input[value=\"save\"]');
     const previousBtn = form.querySelector('input[value=\"previous\"]');
     const nextBtn = form.querySelector('input[value=\"next\"]');
@@ -369,7 +516,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Agregar event listeners a todos los radio buttons
     radioInputs.forEach(function(input) {
-        input.addEventListener('change', validateCurrentPage);
+        input.addEventListener('change', function() {
+            updateButtonStates(this.name);
+            validateCurrentPage();
+        });
     });
     
     // Validación inicial al cargar la página

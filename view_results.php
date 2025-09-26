@@ -15,7 +15,7 @@ require_login($course);
 
 // Verificar permisos
 if ($userid != $USER->id) {
-    require_capability('block/chaside:view_reports', $context);
+    require_capability('block/chaside:viewreports', $context);
 }
 
 $PAGE->set_url('/blocks/chaside/view_results.php', array('courseid' => $courseid, 'blockid' => $blockid, 'userid' => $userid));
@@ -26,8 +26,7 @@ $PAGE->set_context($context);
 // Obtener los resultados del usuario
 $response = $DB->get_record('block_chaside_responses', array(
     'userid' => $userid,
-    'courseid' => $courseid,
-    'is_completed' => 1
+    'courseid' => $courseid
 ));
 
 if (!$response) {
