@@ -96,9 +96,10 @@ jobs:
           exit 1
         fi
         
-        # Verificar que no hay inclusiones dinámicas inseguras (excluyendo patrones estándar de Moodle)
-        if grep -r "\$_GET\[.*\].*include\|require" --include="*.php" . | grep -v "require_capability" | grep -v "\$CFG->dirroot"; then
-          echo "❌ Posible inclusión de archivos insegura"
+        # Verificar que no hay inclusiones dinámicas inseguras 
+        # Solo buscar patrones realmente peligrosos: variables de entrada directas en includes/requires
+        if grep -r "\$_GET\[.*\].*\(include\|require\)_once\?\|$_POST\[.*\].*\(include\|require\)_once\?\|\$_REQUEST\[.*\].*\(include\|require\)_once\?" --include="*.php" .; then
+          echo "❌ Inclusión de archivos insegura detectada"
           exit 1
         fi
         
@@ -108,8 +109,16 @@ jobs:
           echo "✅ Encontradas verificaciones de capacidades de Moodle"
         fi
         
+        if grep -r "require_login" --include="*.php" .; then
+          echo "✅ Encontradas verificaciones de login de Moodle"
+        fi
+        
         if grep -r "\$CFG->dirroot.*moodleblock" --include="*.php" .; then
           echo "✅ Encontradas inclusiones estándar de bloques de Moodle"
+        fi
+        
+        if grep -r "required_param\|optional_param" --include="*.php" .; then
+          echo "✅ Encontradas funciones seguras de parámetros de Moodle"
         fi
         
         # Verificar escape de datos
