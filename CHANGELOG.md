@@ -27,6 +27,7 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - **Variables Indefinidas**: Corregido error de variable $blockid indefinida en admin_view.php
 - **Capability Names**: Unificados nombres de capacidades para consistencia (viewreports vs view_reports)
 - **Gestión de Parámetros**: Mejorado manejo de parámetros userid y blockid en URLs
+- **GitHub Actions**: Corregidos falsos positivos en verificaciones de seguridad para patrones estándar de Moodle
 
 ### Mejorado
 - **Traducciones Completas**: Agregadas todas las cadenas de traducción faltantes en español e inglés
@@ -38,6 +39,8 @@ y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - **Capacidades**: Implementado sistema completo de capacidades y permisos
 - **Base de Datos**: Optimizadas consultas para mejor rendimiento
 - **Arquitectura**: Código reorganizado para mejor mantenibilidad
+- **CI/CD**: Mejoradas verificaciones de seguridad para reconocer patrones estándar de Moodle
+- **Testing**: Eliminados falsos positivos en GitHub Actions para funciones `require_login`, `required_param`, etc.
 
 ## [1.2.7] - 2025-01-23
 
