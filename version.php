@@ -9,7 +9,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_chaside';
-$plugin->version = 2025092618;
+$plugin->version = 2025092901;
 $plugin->requires = 2022041900;
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.5.0';
+$plugin->release = '1.6.0';
