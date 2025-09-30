@@ -11,21 +11,25 @@
 [![License](https://img.shields.io/badge/License-GPL%20v3-green?style=flat-square)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/ISCOUTB/chaside?style=flat-square)](https://github.com/ISCOUTB/chaside/releases)
 
+![Screenshot](docs/chaside_dashboard.png)
+
 </div>
 
 ## 📋 ¿Qué es CHASIDE?
 
 CHASIDE es un test vocacional científicamente validado que evalúa las preferencias e intereses profesionales de los estudiantes en **7 áreas vocacionales**:
 
-| Área | Nombre | Descripción | Carreras Ejemplo |
-|------|--------|-------------|------------------|
-| **C** | Cálculo | Matemáticas y análisis numérico | Ingeniería, Matemáticas, Física |
-| **H** | Humanística | Ciencias sociales y humanas | Psicología, Historia, Derecho |
-| **A** | Artística | Expresión creativa y estética | Diseño, Arte, Música, Arquitectura |
-| **S** | Servicio Social | Ayuda y servicio a la comunidad | Trabajo Social, Enfermería, Medicina |
-| **I** | Trabajo de Oficina | Actividades administrativas | Administración, Contabilidad, Secretariado |
-| **D** | Persuasiva | Influencia y liderazgo | Ventas, Marketing, Política, Periodismo |
-| **E** | Científica | Investigación y experimentación | Biología, Química, Investigación |
+| Área | Nombre Oficial | Descripción Oficial | Ejemplos de Carreras |
+|------|----------------|--------------------|----------------------|
+| **C** | Administrativa | Fortalezas en organización, liderazgo y manejo numérico. | Administración, Contabilidad, Gestión Pública |
+| **H** | Humanidades/Sociales/Jurídicas | Interés por lenguaje, justicia y análisis social. | Derecho, Psicología, Sociología, Historia |
+| **A** | Artística | Creatividad y sensibilidad estética para resolver problemas. | Diseño, Arte, Música, Arquitectura |
+| **S** | Ciencias de la Salud | Orientación a servicio, precisión y cuidado de personas. | Medicina, Enfermería, Odontología, Trabajo Social |
+| **I** | Enseñanzas Técnicas | Pensamiento técnico-analítico y planificación. | Ingeniería, Informática, Tecnología |
+| **D** | Defensa y Seguridad | Disciplina, trabajo en equipo y perseverancia. | Fuerzas Armadas, Policía, Bomberos |
+| **E** | Ciencias Experimentales | Observación rigurosa, método científico e investigación. | Biología, Química, Física, Investigación |
+
+
 
 ## ✨ Características Principales
 
@@ -37,6 +41,41 @@ CHASIDE es un test vocacional científicamente validado que evalúa las preferen
 - 🔐 **Control de acceso** - Solo estudiantes pueden tomar el test
 - 🌐 **Multiidioma** - Disponible en Español e Inglés
 - 📈 **Dashboard para profesores** - Estadísticas y exportación de datos
+- 🖼️ **Ejemplo de resultado:**
+
+![Resultados ejemplo](docs/chaside_result_example.png)
+
+## 🧩 Ejemplo de Uso de la API
+
+```php
+// Obtener resultados de un usuario
+$results = block_chaside_get_user_results($userid, $courseid);
+foreach ($results as $area => $score) {
+   echo "Área $area: $score puntos\n";
+}
+```
+
+## 🛠️ Troubleshooting y Preguntas Frecuentes
+
+- **No se guardan las respuestas:** Verifica permisos de escritura en la base de datos y que el usuario tenga rol de estudiante.
+- **No aparecen los resultados:** Asegúrate de que el test esté completado y que el bloque esté correctamente configurado en el curso.
+- **Problemas de exportación:** Revisa que el servidor tenga permisos para escribir archivos y que la carpeta `export/` exista.
+- **Error de caché en Moodle:** Ejecuta `php admin/cli/purge_caches.php` en el servidor o desde Docker si usas contenedores.
+
+## 📊 Diagrama de Flujo de Experiencia de Usuario
+
+```mermaid
+flowchart TD
+   A[Inicio] --> B{¿Estudiante?}
+   B -- Sí --> C[Realiza test]
+   B -- No --> D[Acceso a dashboard]
+   C --> E[Guarda respuestas]
+   E --> F[Calcula resultados]
+   F --> G[Visualiza resultados]
+   D --> H[Exporta datos]
+   G --> I[Fin]
+   H --> I[Fin]
+```
 
 ## 🚀 Instalación Rápida
 
