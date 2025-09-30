@@ -1,14 +1,14 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'CHASIDE - Test Vocacional';
+$string['pluginname'] = 'Exploración de Orientación Vocacional';
 $string['chaside'] = 'CHASIDE';
 $string['chaside:addinstance'] = 'Añadir un nuevo bloque CHASIDE';
 $string['chaside:myaddinstance'] = 'Añadir un nuevo bloque CHASIDE a Mi Página';
 $string['chaside:take_test'] = 'Realizar el test CHASIDE';
 $string['chaside:viewreports'] = 'Ver reportes del test CHASIDE';
 
-$string['test_title'] = 'Test de Orientación Vocacional CHASIDE';
+$string['test_title'] = 'Exploración de orientación vocacional';
 $string['test_instructions'] = 'Instrucciones del Test';
 $string['test_description'] = 'Este test te ayudará a descubrir tus intereses vocacionales. Responde "SÍ" o "NO" a cada pregunta según lo que realmente te gusta hacer.';
 $string['start_test'] = 'Iniciar Test';
@@ -274,39 +274,7 @@ $string['other_strong_areas'] = 'Otras Áreas Fuertes';
 $string['area_description'] = 'Descripción del Área';
 $string['career_suggestions'] = 'Sugerencias de Carrera';
 
-$string['area_c'] = 'Científico (C)';
-$string['area_h'] = 'Humanístico (H)';
-$string['area_a'] = 'Artístico (A)';
-$string['area_s'] = 'Social (S)';
-$string['area_i'] = 'Iniciativa Empresarial (I)';
-$string['area_d'] = 'Aire Libre (D)';
-$string['area_e'] = 'Ejecutivo Persuasivo (E)';
 
-// Area names in uppercase (for compatibility)
-$string['area_C'] = 'Científico (C)';
-$string['area_H'] = 'Humanístico (H)';
-$string['area_A'] = 'Artístico (A)';
-$string['area_S'] = 'Social (S)';
-$string['area_I'] = 'Iniciativa Empresarial (I)';
-$string['area_D'] = 'Aire Libre (D)';
-$string['area_E'] = 'Ejecutivo Persuasivo (E)';
-
-$string['desc_c'] = 'Interés en la investigación, análisis, experimentación y resolución de problemas complejos.';
-$string['desc_h'] = 'Interés en las humanidades, literatura, historia, filosofía y el estudio del ser humano.';
-$string['desc_a'] = 'Interés en la expresión artística, creatividad, diseño y actividades estéticas.';
-$string['desc_s'] = 'Interés en ayudar a otros, trabajo social, educación y servicios comunitarios.';
-$string['desc_i'] = 'Interés en emprender proyectos, innovar y liderar iniciativas empresariales.';
-$string['desc_d'] = 'Interés en actividades al aire libre, deportes y trabajar en contacto con la naturaleza.';
-$string['desc_e'] = 'Interés en persuadir, vender, dirigir e influir en otros.';
-
-// Area descriptions in uppercase (for compatibility)
-$string['desc_C'] = 'Interés en la investigación, análisis, experimentación y resolución de problemas complejos.';
-$string['desc_H'] = 'Interés en las humanidades, literatura, historia, filosofía y el estudio del ser humano.';
-$string['desc_A'] = 'Interés en la expresión artística, creatividad, diseño y actividades estéticas.';
-$string['desc_S'] = 'Interés en ayudar a otros, trabajo social, educación y servicios comunitarios.';
-$string['desc_I'] = 'Interés en emprender proyectos, innovar y liderar iniciativas empresariales.';
-$string['desc_D'] = 'Interés en actividades al aire libre, deportes y trabajar en contacto con la naturaleza.';
-$string['desc_E'] = 'Interés en persuadir, vender, dirigir e influir en otros.';
 
 $string['test_saved'] = 'Tu progreso ha sido guardado exitosamente.';
 $string['test_error'] = 'Ocurrió un error al guardar el test. Por favor, inténtalo de nuevo.';
