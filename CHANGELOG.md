@@ -5,6 +5,17 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.6.3] - 2025-09-30
+
+### Mejorado
+- Informe de cadenas y traducciones repetidas generado y verificado para limpieza futura.
+- Preparación para actualización de áreas y descripciones según nueva taxonomía (pendiente de confirmación).
+- Actualización de versión y release para mantener consistencia con mejoras recientes.
+
+### Técnico
+- Bump de versión a 1.6.3 para despliegue y pruebas.
+
 ## [Unreleased]
 
 ### Planeado
