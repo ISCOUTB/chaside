@@ -94,6 +94,18 @@ echo '</div>';
 
 echo '</div>';
 
+// Download CSV button (if there are completed responses)
+if ($total_completed > 0) {
+    $download_url = new moodle_url('/blocks/chaside/export.php', array('courseid' => $courseid, 'format' => 'csv'));
+    echo '<div class="row mb-3">';
+    echo '<div class="col-12">';
+    echo '<a href="' . $download_url . '" class="btn btn-success">';
+    echo '<i class="fa fa-download"></i> ' . get_string('download_all_results', 'block_chaside');
+    echo '</a>';
+    echo '</div>';
+    echo '</div>';
+}
+
 // Area statistics (if there are completed responses)
 if ($total_completed > 0) {
     echo '<div class="row mb-4">';

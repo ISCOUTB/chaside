@@ -6,6 +6,15 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.6.7] - 2025-10-13
+
+### Agregado
+- **Botón de exportar CSV en admin_view.php**: Agregado botón de descarga de resultados en el panel de administración principal
+
+### Mejorado
+- Interfaz de usuario mejorada con acceso directo a exportación CSV desde el dashboard de administración
+- Icono de descarga agregado al botón para mejor visibilidad
+
 ## [1.6.6] - 2025-10-13
 
 ### Corregido
