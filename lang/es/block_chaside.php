@@ -358,18 +358,18 @@ $string['rec_explore_combinations'] = 'Explora combinaciones entre tus áreas m�
 
 $string['orientation_note'] = 'Este resultado es orientativo; se recomienda complementar con diálogo y experiencias prácticas.';
 
-// Export CSV headers
+// Export CSV headers - CORREGIDO según mapeo oficial CHASIDE
 $string['export_student_id'] = 'ID Estudiante';
 $string['export_student_name'] = 'Nombre del Estudiante';
 $string['export_student_email'] = 'Correo Electrónico';
 $string['export_completion_date'] = 'Fecha de Finalización';
-$string['export_scientific_score'] = 'Puntuación Científica';
-$string['export_humanistic_score'] = 'Puntuación Humanística';
-$string['export_artistic_score'] = 'Puntuación Artística';
-$string['export_social_score'] = 'Puntuación Social';
-$string['export_entrepreneurial_score'] = 'Puntuación Empresarial';
-$string['export_outdoor_score'] = 'Puntuación Aire Libre';
-$string['export_executive_score'] = 'Puntuación Ejecutiva';
+$string['export_administrative_score'] = 'Puntuación Administrativa (C)';
+$string['export_humanities_score'] = 'Puntuación Humanidades/Sociales/Jurídicas (H)';
+$string['export_artistic_score'] = 'Puntuación Artística (A)';
+$string['export_health_sciences_score'] = 'Puntuación Ciencias de la Salud (S)';
+$string['export_technical_score'] = 'Puntuación Enseñanzas Técnicas (I)';
+$string['export_defense_security_score'] = 'Puntuación Defensa y Seguridad (D)';
+$string['export_experimental_sciences_score'] = 'Puntuación Ciencias Experimentales (E)';
 $string['export_top_area'] = 'Área Principal';
 $string['export_score'] = 'Puntuación';
 

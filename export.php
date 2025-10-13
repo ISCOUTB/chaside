@@ -33,21 +33,33 @@ $export_data = array();
 foreach ($responses as $response) {
     // Convert stdClass to array for the facade
     $response_array = (array) $response;
-    $scores = $facade->calculate_scores($response_array);
-    $top_areas = $facade->get_top_areas($scores, 3);
+    
+    try {
+        $scores = $facade->calculate_scores($response_array);
+        $top_areas = $facade->get_top_areas($scores, 3);
+    } catch (Exception $e) {
+        // If calculation fails, use empty arrays
+        $scores = array('C' => '', 'H' => '', 'A' => '', 'S' => '', 'I' => '', 'D' => '', 'E' => '');
+        $top_areas = array();
+    }
+    
+    // Safely access score keys with fallback
+    $get_score = function($key) use ($scores) {
+        return isset($scores[$key]) ? $scores[$key] : '';
+    };
     
     $export_data[] = array(
         'student_id' => $response->userid,
         'student_name' => $response->firstname . ' ' . $response->lastname,
         'student_email' => $response->email,
         'completion_date' => date('Y-m-d H:i:s', $response->timemodified),
-        'scientific_score' => $scores['C'],
-        'humanistic_score' => $scores['H'],
-        'artistic_score' => $scores['A'],
-        'social_score' => $scores['S'],
-        'entrepreneurial_score' => $scores['I'],
-        'outdoor_score' => $scores['D'],
-        'executive_score' => $scores['E'],
+        'administrative_score' => $get_score('C'),
+        'humanities_score' => $get_score('H'),
+        'artistic_score' => $get_score('A'),
+        'health_sciences_score' => $get_score('S'),
+        'technical_score' => $get_score('I'),
+        'defense_security_score' => $get_score('D'),
+        'experimental_sciences_score' => $get_score('E'),
         'top_area_1' => isset($top_areas[0]) ? $top_areas[0]['area'] : '',
         'top_area_1_score' => isset($top_areas[0]) ? $top_areas[0]['score'] : '',
         'top_area_2' => isset($top_areas[1]) ? $top_areas[1]['area'] : '',
@@ -74,13 +86,13 @@ if ($format == 'csv') {
         get_string('export_student_name', 'block_chaside'),
         get_string('export_student_email', 'block_chaside'),
         get_string('export_completion_date', 'block_chaside'),
-        get_string('export_scientific_score', 'block_chaside'),
-        get_string('export_humanistic_score', 'block_chaside'),
+        get_string('export_administrative_score', 'block_chaside'),
+        get_string('export_humanities_score', 'block_chaside'),
         get_string('export_artistic_score', 'block_chaside'),
-        get_string('export_social_score', 'block_chaside'),
-        get_string('export_entrepreneurial_score', 'block_chaside'),
-        get_string('export_outdoor_score', 'block_chaside'),
-        get_string('export_executive_score', 'block_chaside'),
+        get_string('export_health_sciences_score', 'block_chaside'),
+        get_string('export_technical_score', 'block_chaside'),
+        get_string('export_defense_security_score', 'block_chaside'),
+        get_string('export_experimental_sciences_score', 'block_chaside'),
         get_string('export_top_area', 'block_chaside') . ' 1',
         get_string('export_top_area', 'block_chaside') . ' 1 ' . get_string('export_score', 'block_chaside'),
         get_string('export_top_area', 'block_chaside') . ' 2', 

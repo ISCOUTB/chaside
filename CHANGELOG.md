@@ -6,6 +6,18 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.6.6] - 2025-10-13
+
+### Corregido
+- **Nombres de áreas CHASIDE**: Corregido mapeo incorrecto de áreas en export.php y archivos de idioma
+- **Export CSV robusto**: Agregado manejo de errores con try-catch para proteger contra fallos en cálculo de puntuaciones
+- **Acceso seguro a claves**: Implementada función helper para acceso seguro a claves de array de scores
+
+### Mejorado
+- Protección contra datos faltantes en exportación CSV
+- Nombres de columnas del CSV ahora reflejan correctamente las áreas CHASIDE oficiales
+- Manejo de excepciones para evitar exportaciones con datos vacíos
+
 ## [1.6.3] - 2025-09-30
 
 ### Mejorado
