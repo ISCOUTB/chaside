@@ -94,7 +94,7 @@ class block_chaside extends block_base {
             $completion_date = get_string('date_not_available', 'block_chaside');
         }
         
-        echo '<div class="chaside-results-block">';
+        echo '<div class="chaside-results-block" style="padding: 15px; background: white; border-radius: 8px; border: 1px solid #dee2e6;">';
         
         // Header with success icon
         echo '<div class="chaside-header text-center mb-3">';
@@ -193,7 +193,7 @@ class block_chaside extends block_base {
         
         // Header with icon
         echo '<div class="chaside-header text-center mb-3">';
-        echo '<i class="fa fa-compass text-primary" style="font-size: 2em;"></i>';
+        echo '<i class="fa fa-compass" style="font-size: 2.2em; color: #5e35b1;"></i>';
         echo '<h6 class="mt-2 mb-1">' . get_string('vocational_orientation', 'block_chaside') . '</h6>';
         echo '<small class="text-muted">' . get_string('discover_your_interests', 'block_chaside') . '</small>';
         echo '</div>';
@@ -273,7 +273,7 @@ class block_chaside extends block_base {
             'page' => $start_page,
             'scroll' => $first_empty
         ));
-        echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block">';
+        echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block" style="' . ($button_class == 'btn-primary' ? 'background-color: #673ab7; border-color: #673ab7;' : '') . '">';
         echo '<i class="fa ' . $button_icon . '"></i> ' . $button_text;
         echo '</a>';
         echo '</div>';
@@ -284,9 +284,9 @@ class block_chaside extends block_base {
         echo '<style>
         .chaside-invitation-block {
             padding: 15px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            background: linear-gradient(135deg, #ede7f6 0%, #f8f9fa 100%);
             border-radius: 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid #d1c4e9;
         }
         .chaside-header i {
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -303,6 +303,15 @@ class block_chaside extends block_base {
         .chaside-actions .btn {
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .chaside-actions .btn-primary {
+            background-color: #673ab7;
+            border-color: #673ab7;
+        }
+        .chaside-actions .btn-primary:hover {
+            background-color: #5e35b1;
+            border-color: #512da8;
         }
         .chaside-actions .btn:hover {
             transform: translateY(-1px);
@@ -435,6 +444,7 @@ class block_chaside extends block_base {
             box-shadow: 0 2px 4px rgba(0,123,255,0.2);
         }
         </style>';
+
     }
 }
 
