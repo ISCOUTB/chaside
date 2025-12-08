@@ -25,6 +25,12 @@ $string['save_progress'] = 'Save Progress';
 $string['question'] = 'Question';
 $string['of'] = 'of';
 
+// Button labels
+$string['btn_previous'] = 'Previous Page';
+$string['btn_next'] = 'Next Page';
+$string['btn_finish'] = 'Finish Test';
+$string['btn_save_progress'] = 'Save Progress';
+
 $string['yes'] = 'YES';
 $string['no'] = 'NO';
 
@@ -216,9 +222,8 @@ $string['chaside_description'] = 'CHASIDE is a vocational test that helps you id
 $string['feature_98_questions'] = '98 questions designed to evaluate your preferences';
 $string['feature_7_areas'] = '7 different vocational areas (C-H-A-S-I-D-E)';
 $string['feature_instant_results'] = 'Instant and detailed results';
-$string['complete_current_page'] = 'Complete all questions on the current page';
 $string['questions_unanswered'] = 'questions unanswered';
-$string['progress_saved'] = 'Progress saved successfully';
+$string['progress_saved'] = 'Progress saved successfully. Keep it up!!!';
 $string['test_completed_success'] = 'Test completed successfully. Redirecting to results...';
 $string['points'] = 'points';
 $string['view_detailed_results'] = 'View detailed results';
@@ -234,6 +239,19 @@ $string['your_progress'] = 'Your progress';
 
 // Export functionality strings
 $string['no_responses_yet'] = 'No responses available yet for this course';
+$string['export_student_id'] = 'Student ID';
+$string['export_student_name'] = 'Student Name';
+$string['export_student_email'] = 'Student Email';
+$string['export_completion_date'] = 'Completion Date';
+$string['export_administrative_score'] = 'Administrative Score (C)';
+$string['export_humanistic_score'] = 'Humanistic Score (H)';
+$string['export_artistic_score'] = 'Artistic Score (A)';
+$string['export_social_score'] = 'Social Score (S)';
+$string['export_entrepreneurial_score'] = 'Entrepreneurial Score (I)';
+$string['export_outdoor_score'] = 'Outdoor Score (D)';
+$string['export_experimental_sciences_score'] = 'Experimental Sciences Score (E)';
+$string['export_top_area'] = 'Top Area';
+$string['export_score'] = 'score';
 
 // New strings for official CHASIDE format
 $string['interests'] = 'Interests';
@@ -273,16 +291,8 @@ $string['rec_explore_combinations'] = 'Explore combinations between your stronge
 
 $string['orientation_note'] = 'This result is indicative; it is recommended to complement with dialogue and practical experiences.';
 
-$string['export_student_id'] = 'Student ID';
-$string['export_student_name'] = 'Student Name';
-$string['export_student_email'] = 'Student Email';
-$string['export_completion_date'] = 'Completion Date';
-$string['export_administrative_score'] = 'Administrative Score (C)';
-$string['export_humanistic_score'] = 'Humanistic Score (H)';
-$string['export_artistic_score'] = 'Artistic Score (A)';
-$string['export_social_score'] = 'Social Score (S)';
-$string['export_entrepreneurial_score'] = 'Entrepreneurial Score (I)';
-$string['export_outdoor_score'] = 'Outdoor Score (D)';
-$string['export_experimental_sciences_score'] = 'Experimental Sciences Score (E)';
-$string['export_top_area'] = 'Top Area';
-$string['export_score'] = 'score';
+
+
+// Validation and feedback strings
+$string['note'] = 'Note';
+$string['all_questions_required'] = 'All questions on each page are required. You must answer all of them before continuing.';

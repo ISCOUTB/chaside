@@ -7,6 +7,7 @@ $string['chaside:addinstance'] = 'Añadir un nuevo bloque CHASIDE';
 $string['chaside:myaddinstance'] = 'Añadir un nuevo bloque CHASIDE a Mi Página';
 $string['chaside:take_test'] = 'Realizar el test CHASIDE';
 $string['chaside:viewreports'] = 'Ver reportes del test CHASIDE';
+$string['chaside:manage'] = 'Gestionar el test CHASIDE';
 
 $string['test_title'] = 'Exploración de orientación vocacional';
 $string['test_instructions'] = 'Instrucciones del Test';
@@ -23,6 +24,12 @@ $string['finish'] = 'Finalizar';
 $string['save_progress'] = 'Guardar Progreso';
 $string['question'] = 'Pregunta';
 $string['of'] = 'de';
+
+// Button labels
+$string['btn_previous'] = 'Página Anterior';
+$string['btn_next'] = 'Página Siguiente';
+$string['btn_finish'] = 'Finalizar Test';
+$string['btn_save_progress'] = 'Guardar Progreso';
 
 $string['yes'] = 'SÍ';
 $string['no'] = 'NO';
@@ -215,7 +222,6 @@ $string['chaside_description'] = 'CHASIDE es un test vocacional que te ayuda a i
 $string['feature_98_questions'] = '98 preguntas diseñadas para evaluar tus preferencias';
 $string['feature_7_areas'] = '7 áreas vocacionales diferentes (C-H-A-S-I-D-E)';
 $string['feature_instant_results'] = 'Resultados instantáneos y detallados';
-$string['complete_current_page'] = 'Complete todas las preguntas de la página actual';
 $string['questions_unanswered'] = 'preguntas sin responder';
 $string['progress_saved'] = 'Progreso guardado correctamente';
 $string['test_completed_success'] = 'Test completado exitosamente. Redirigiendo a los resultados...';
@@ -312,9 +318,8 @@ $string['enrolled_students'] = 'Estudiantes Matriculados';
 $string['teachers_redirect_message'] = 'Los profesores y administradores no pueden realizar el test. Has sido redirigido a la página de gestión.';
 $string['back_to_course'] = 'Volver al Curso';
 $string['test_completed_success'] = '¡Test completado exitosamente! Puedes ver tus resultados en el bloque CHASIDE.';
-$string['progress_saved'] = 'Tu progreso ha sido guardado. Continúa a la siguiente página.';
+$string['progress_saved'] = 'Tu progreso ha sido guardado. Sigue así!!!';
 $string['complete_all_questions'] = 'Por favor completa todas las preguntas antes de finalizar el test.';
-$string['complete_current_page'] = 'Por favor completa todas las preguntas de esta página antes de continuar.';
 $string['completion_date_label'] = 'Fecha de Finalización:';
 $string['questions_unanswered'] = 'preguntas sin responder';
 $string['questions_remaining'] = 'preguntas restantes';
@@ -384,6 +389,10 @@ $string['chaside_description'] = 'Un test científico que identifica tus interes
 $string['feature_98_questions'] = '98 preguntas estratégicas';
 $string['feature_7_areas'] = '7 áreas vocacionales';
 $string['feature_instant_results'] = 'Resultados inmediatos';
+
+// Validation and feedback strings
+$string['note'] = 'Nota';
+$string['all_questions_required'] = 'Todas las preguntas de cada página son obligatorias. Debes responder todas antes de continuar.';
 
 // Management interface strings
 $string['course_overview'] = 'Resumen del curso';

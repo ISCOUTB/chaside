@@ -246,11 +246,32 @@ class block_chaside extends block_base {
             $button_class = 'btn-primary';
         }
         
-        // Action button
+        // Call to action
         echo '<div class="chaside-actions text-center">';
+        
+        // Calculate which page to start on
+        $start_page = 1;
+        if ($response) {
+            // Find first unanswered question
+            $questions_per_page = 10;
+            $first_empty = null;
+            for ($i = 1; $i <= 98; $i++) {
+                $q_field = "q{$i}";
+                // A question is answered if the field exists AND is not null
+                // (0 is a valid answer for "No me gusta", so we check !== null)
+                if (!isset($response->$q_field) || $response->$q_field === null) {
+                    $first_empty = $i;
+                    $start_page = ceil($i / $questions_per_page);
+                    break;
+                }
+            }
+        }
+        
         $url = new moodle_url('/blocks/chaside/view.php', array(
             'courseid' => $COURSE->id,
-            'blockid' => $this->instance->id
+            'blockid' => $this->instance->id,
+            'page' => $start_page,
+            'scroll' => $first_empty
         ));
         echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block">';
         echo '<i class="fa ' . $button_icon . '"></i> ' . $button_text;
