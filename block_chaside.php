@@ -289,8 +289,6 @@ class block_chaside extends block_base {
         }
         </style>';
         
-        echo '</div>';
-        
         // Add custom CSS
         echo '<style>
         .chaside-results-block {
