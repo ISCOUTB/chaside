@@ -246,11 +246,32 @@ class block_chaside extends block_base {
             $button_class = 'btn-primary';
         }
         
-        // Action button
+        // Call to action
         echo '<div class="chaside-actions text-center">';
+        
+        // Calculate which page to start on
+        $start_page = 1;
+        if ($response) {
+            // Find first unanswered question
+            $questions_per_page = 10;
+            $first_empty = null;
+            for ($i = 1; $i <= 98; $i++) {
+                $q_field = "q{$i}";
+                // A question is answered if the field exists AND is not null
+                // (0 is a valid answer for "No me gusta", so we check !== null)
+                if (!isset($response->$q_field) || $response->$q_field === null) {
+                    $first_empty = $i;
+                    $start_page = ceil($i / $questions_per_page);
+                    break;
+                }
+            }
+        }
+        
         $url = new moodle_url('/blocks/chaside/view.php', array(
             'courseid' => $COURSE->id,
-            'blockid' => $this->instance->id
+            'blockid' => $this->instance->id,
+            'page' => $start_page,
+            'scroll' => $first_empty
         ));
         echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block">';
         echo '<i class="fa ' . $button_icon . '"></i> ' . $button_text;
@@ -288,39 +309,6 @@ class block_chaside extends block_base {
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         </style>';
-        
-        echo '</div>';
-        
-        // Add custom CSS
-        echo '<style>
-        .chaside-results-block {
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-        .chaside-header i {
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .chaside-top-area .card {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
-        .chaside-top-area .card:hover {
-            transform: translateY(-2px);
-        }
-        .chaside-other-areas {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
-        }
-        .chaside-actions .btn {
-            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
-        }
-        </style>';
-        
-        echo '</div>';
     }
     
     public function applicable_formats() {
