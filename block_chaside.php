@@ -288,39 +288,6 @@ class block_chaside extends block_base {
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         </style>';
-        
-        echo '</div>';
-        
-        // Add custom CSS
-        echo '<style>
-        .chaside-results-block {
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-        .chaside-header i {
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .chaside-top-area .card {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
-        .chaside-top-area .card:hover {
-            transform: translateY(-2px);
-        }
-        .chaside-other-areas {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
-        }
-        .chaside-actions .btn {
-            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
-        }
-        </style>';
-        
-        echo '</div>';
     }
     
     public function applicable_formats() {
