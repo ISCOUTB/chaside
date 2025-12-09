@@ -23,10 +23,9 @@ $PAGE->set_title(get_string('your_results', 'block_chaside'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_context($context);
 
-// Obtener los resultados del usuario
+// Obtener los resultados del usuario (en cualquier curso)
 $response = $DB->get_record('block_chaside_responses', array(
-    'userid' => $userid,
-    'courseid' => $courseid
+    'userid' => $userid
 ));
 
 if (!$response) {
