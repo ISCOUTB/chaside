@@ -399,3 +399,6 @@ $string['course_overview'] = 'Resumen del curso';
 $string['completion_rate'] = 'Tasa de finalización';
 $string['recent_completions'] = 'Finalizaciones recientes';
 $string['students_completed'] = 'estudiantes completaron';
+
+// Nombres de archivos exportables
+$string['export_filename'] = 'CHASIDE_Orientacion_Vocacional';
