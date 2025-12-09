@@ -29,10 +29,9 @@ $PAGE->set_context($context);
 // Inicializar el facade
 $facade = new ChasideFacade();
 
-// Verificar si ya existe una respuesta del usuario
+// Verificar si ya existe una respuesta del usuario (en cualquier curso)
 $existing_response = $DB->get_record('block_chaside_responses', array(
-    'userid' => $USER->id,
-    'courseid' => $courseid
+    'userid' => $USER->id
 ));
 
 // Procesar envío del formulario
