@@ -23,9 +23,14 @@ echo $OUTPUT->header();
 
 // Get all students enrolled in the course
 $enrolled_students = get_enrolled_users($context, 'block/chaside:take_test');
+$enrolled_ids = array_keys($enrolled_students);
 
-// Get all responses for this course
-$responses = $DB->get_records('block_chaside_responses', array('courseid' => $courseid));
+// Get responses only for enrolled students
+$responses = array();
+if (!empty($enrolled_ids)) {
+    list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED);
+    $responses = $DB->get_records_select('block_chaside_responses', "userid $insql", $params);
+}
 
 // Calculate statistics
 $total_enrolled = count($enrolled_students);
