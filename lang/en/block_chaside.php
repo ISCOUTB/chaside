@@ -244,14 +244,14 @@ $string['export_student_name'] = 'Student Name';
 $string['export_student_email'] = 'Student Email';
 $string['export_completion_date'] = 'Completion Date';
 $string['export_administrative_score'] = 'Administrative Score (C)';
-$string['export_humanistic_score'] = 'Humanistic Score (H)';
+$string['export_humanities_score'] = 'Humanities/Social/Legal Score (H)';
 $string['export_artistic_score'] = 'Artistic Score (A)';
-$string['export_social_score'] = 'Social Score (S)';
-$string['export_entrepreneurial_score'] = 'Entrepreneurial Score (I)';
-$string['export_outdoor_score'] = 'Outdoor Score (D)';
+$string['export_health_sciences_score'] = 'Health Sciences Score (S)';
+$string['export_technical_score'] = 'Technical Education Score (I)';
+$string['export_defense_security_score'] = 'Defense and Security Score (D)';
 $string['export_experimental_sciences_score'] = 'Experimental Sciences Score (E)';
 $string['export_top_area'] = 'Top Area';
-$string['export_score'] = 'score';
+$string['export_score'] = 'Score';
 
 // New strings for official CHASIDE format
 $string['interests'] = 'Interests';
@@ -296,3 +296,6 @@ $string['orientation_note'] = 'This result is indicative; it is recommended to c
 // Validation and feedback strings
 $string['note'] = 'Note';
 $string['all_questions_required'] = 'All questions on each page are required. You must answer all of them before continuing.';
+
+// Export filenames
+$string['export_filename'] = 'CHASIDE_Vocational_Orientation';

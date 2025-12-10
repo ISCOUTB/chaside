@@ -29,15 +29,20 @@ $PAGE->set_context($context);
 // Inicializar el facade
 $facade = new ChasideFacade();
 
-// Verificar si ya existe una respuesta del usuario
+// Verificar si ya existe una respuesta del usuario (en cualquier curso)
 $existing_response = $DB->get_record('block_chaside_responses', array(
-    'userid' => $USER->id,
-    'courseid' => $courseid
+    'userid' => $USER->id
 ));
 
 // Procesar envío del formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_sesskey();
+    
+    // Si el test ya está completado, NO permitir modificaciones
+    if ($existing_response && $existing_response->is_completed) {
+        $results_url = new moodle_url('/blocks/chaside/view_results.php', array('courseid' => $courseid, 'blockid' => $blockid));
+        redirect($results_url, get_string('test_already_completed', 'block_chaside'), null, \core\output\notification::NOTIFY_WARNING);
+    }
     
     $action = optional_param('action', 'save', PARAM_ALPHA);
     
@@ -191,19 +196,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-echo $OUTPUT->header();
-
-// Si el test ya está completado, mostrar enlace a resultados
+// Si el test ya está completado, redirigir a resultados (NO permitir retomar)
 if ($existing_response && $existing_response->is_completed) {
-    echo html_writer::tag('div', get_string('test_completed', 'block_chaside'), array('class' => 'alert alert-success'));
-    echo html_writer::link(
-        new moodle_url('/blocks/chaside/view_results.php', array('courseid' => $courseid, 'blockid' => $blockid)),
-        get_string('view_results', 'block_chaside'),
-        array('class' => 'btn btn-primary')
-    );
-    echo $OUTPUT->footer();
-    exit;
+    $results_url = new moodle_url('/blocks/chaside/view_results.php', array('courseid' => $courseid, 'blockid' => $blockid));
+    redirect($results_url, get_string('test_already_completed', 'block_chaside'), null, \core\output\notification::NOTIFY_INFO);
 }
+
+echo $OUTPUT->header();
 
 // Configuración de paginación
 $questions_per_page = 10;

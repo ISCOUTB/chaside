@@ -39,8 +39,19 @@ $context = context_course::instance($courseid);
 $enrolled_students = get_enrolled_users($context, 'block/chaside:take_test');
 $total_enrolled = count($enrolled_students);
 
-$all_responses = $DB->get_records('block_chaside_responses', array('courseid' => $courseid));
-$completed_responses = array_filter($all_responses, function($r) { return $r->is_completed; });
+// Get enrolled students in this course
+$enrolled_students = get_enrolled_users($context, 'block/chaside:take_test');
+$enrolled_ids = array_keys($enrolled_students);
+$total_enrolled = count($enrolled_students);
+
+// Get responses only for enrolled students
+$all_responses = array();
+$completed_responses = array();
+if (!empty($enrolled_ids)) {
+    list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED);
+    $all_responses = $DB->get_records_select('block_chaside_responses', "userid $insql", $params);
+    $completed_responses = array_filter($all_responses, function($r) { return $r->is_completed; });
+}
 $total_completed = count($completed_responses);
 $total_in_progress = count($all_responses) - $total_completed;
 $completion_rate = $total_enrolled > 0 ? ($total_completed / $total_enrolled) * 100 : 0;
@@ -180,11 +191,19 @@ $table->define_baseurl($PAGE->url);
 
 $table->setup();
 
-// Get responses for completed tests only
-$responses = $DB->get_records('block_chaside_responses', array('courseid' => $courseid, 'is_completed' => 1));
+// Get responses for enrolled students who have completed the test (in any course)
+$responses_to_display = array();
+if (!empty($enrolled_ids)) {
+    list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED, 'user');
+    $params['completed'] = 1;
+    
+    $sql = "SELECT * FROM {block_chaside_responses} 
+            WHERE userid $insql AND is_completed = :completed";
+    $responses_to_display = $DB->get_records_sql($sql, $params);
+}
 
-if ($responses) {
-    foreach ($responses as $response) {
+if ($responses_to_display) {
+    foreach ($responses_to_display as $response) {
         $user = $DB->get_record('user', array('id' => $response->userid), 'id, firstname, lastname, picture, imagealt, firstnamephonetic, lastnamephonetic, middlename, alternatename, email');
         if (!$user) {
             continue;

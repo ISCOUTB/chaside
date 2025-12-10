@@ -35,10 +35,9 @@ class block_chaside extends block_base {
             $this->show_management_summary();
             $this->content->text = ob_get_clean();
         } else if (has_capability('block/chaside:take_test', $context)) {
-            // Student view: check if test is completed
+            // Student view: check if test is completed (in any course)
             $response = $DB->get_record('block_chaside_responses', array(
-                'userid' => $USER->id,
-                'courseid' => $COURSE->id
+                'userid' => $USER->id
             ));
             
             if ($response && $response->is_completed) {
@@ -336,10 +335,22 @@ class block_chaside extends block_base {
         $enrolled_students = get_enrolled_users($context, 'block/chaside:take_test');
         $total_enrolled = count($enrolled_students);
         
-        $responses = $DB->get_records('block_chaside_responses', array('courseid' => $COURSE->id));
-        $completed_responses = array_filter($responses, function($r) { return $r->is_completed; });
-        $total_completed = count($completed_responses);
-        $total_in_progress = count($responses) - $total_completed;
+        // Get responses only for enrolled students in this course
+        $enrolled_ids = array_keys($enrolled_students);
+        $responses = array();
+        $completed_responses = array();
+        $total_completed = 0;
+        $total_in_progress = 0;
+        
+        if (!empty($enrolled_ids)) {
+            list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED, 'user');
+            $sql = "SELECT * FROM {block_chaside_responses} WHERE userid $insql";
+            $responses = $DB->get_records_sql($sql, $params);
+            
+            $completed_responses = array_filter($responses, function($r) { return $r->is_completed; });
+            $total_completed = count($completed_responses);
+            $total_in_progress = count($responses) - $total_completed;
+        }
         
         $completion_rate = $total_enrolled > 0 ? ($total_completed / $total_enrolled) * 100 : 0;
         
@@ -392,10 +403,14 @@ class block_chaside extends block_base {
         echo '</div>';
         
         // Recent activity (if any)
-        if ($total_completed > 0) {
-            $recent_responses = $DB->get_records('block_chaside_responses', 
-                array('courseid' => $COURSE->id, 'is_completed' => 1), 
-                'timemodified DESC', '*', 0, 3);
+        if ($total_completed > 0 && !empty($enrolled_ids)) {
+            list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED, 'user');
+            $params['completed'] = 1;
+            
+            $sql = "SELECT * FROM {block_chaside_responses} 
+                    WHERE userid $insql AND is_completed = :completed 
+                    ORDER BY timemodified DESC";
+            $recent_responses = $DB->get_records_sql($sql, $params, 0, 3);
                 
             echo '<div class="chaside-recent mb-3">';
             echo '<h6 class="mb-2">' . get_string('recent_completions', 'block_chaside') . '</h6>';

@@ -126,7 +126,7 @@
         <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid_courseid" UNIQUE="false" FIELDS="userid, courseid"/>
+        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

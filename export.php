@@ -13,14 +13,35 @@ $context = context_course::instance($courseid);
 require_login($course);
 require_capability('block/chaside:manage_responses', $context);
 
-// Get all completed responses for the course
-$responses = $DB->get_records_sql("
-    SELECT cr.*, u.firstname, u.lastname, u.email
-    FROM {block_chaside_responses} cr
-    JOIN {user} u ON cr.userid = u.id
-    WHERE cr.courseid = ? AND cr.is_completed = 1
-    ORDER BY cr.timemodified DESC
-", array($courseid));
+// Get enrolled students in this course
+$enrolled_users = get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
+
+// Filtrar solo estudiantes (rol 5)
+$enrolled_ids = array();
+foreach ($enrolled_users as $user) {
+    $roles = get_user_roles($context, $user->id);
+    foreach ($roles as $role) {
+        if ($role->roleid == 5) { // 5 = student
+            $enrolled_ids[] = $user->id;
+            break;
+        }
+    }
+}
+
+// Get all completed responses for enrolled students only
+$responses = array();
+if (!empty($enrolled_ids)) {
+    list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED, 'user');
+    $params['completed'] = 1;
+    
+    $responses = $DB->get_records_sql("
+        SELECT cr.*, u.firstname, u.lastname, u.email, u.idnumber
+        FROM {block_chaside_responses} cr
+        JOIN {user} u ON cr.userid = u.id
+        WHERE cr.userid $insql AND cr.is_completed = :completed
+        ORDER BY cr.timemodified DESC
+    ", $params);
+}
 
 if (empty($responses)) {
     redirect(new moodle_url('/blocks/chaside/manage.php', array('courseid' => $courseid)), 
@@ -49,7 +70,7 @@ foreach ($responses as $response) {
     };
     
     $export_data[] = array(
-        'student_id' => $response->userid,
+        'student_id' => $response->idnumber,
         'student_name' => $response->firstname . ' ' . $response->lastname,
         'student_email' => $response->email,
         'completion_date' => date('Y-m-d H:i:s', $response->timemodified),
@@ -69,7 +90,10 @@ foreach ($responses as $response) {
     );
 }
 
-$filename = 'chaside_results_course_' . $courseid . '_' . date('Y-m-d');
+// Generar nombre elegante del archivo usando string de idioma
+$course_name = preg_replace('/[^a-z0-9]/i', '_', strtolower($course->shortname));
+$date_str = date('Y-m-d');
+$filename = get_string('export_filename', 'block_chaside') . '_' . $course_name . '_' . $date_str;
 
 if ($format == 'csv') {
     header('Content-Type: text/csv; charset=utf-8');
