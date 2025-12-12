@@ -98,13 +98,13 @@ class block_chaside extends block_base {
         // Header with success icon
         echo '<div class="chaside-header text-center mb-3">';
         echo '<i class="fa fa-check-circle text-success" style="font-size: 1.5em;"></i>';
-        echo '<h6 class="mt-2 mb-1">' . get_string('test_completed', 'block_chaside') . '</h6>';
+        echo '<h6 class="mt-2 mb-1 font-weight-bold">' . get_string('test_completed', 'block_chaside') . '</h6>';
         echo '<small class="text-muted">' . $completion_date . '</small>';
         echo '</div>';
         
         // Executive Summary
         echo '<div class="chaside-executive-summary mb-3">';
-        echo '<h6 class="mb-2">' . get_string('executive_summary', 'block_chaside') . '</h6>';
+        echo '<h6 class="mb-2 font-weight-bold">' . get_string('executive_summary', 'block_chaside') . '</h6>';
         
         // Top areas
         if ($results['resumen_ejecutivo']['top1']) {
@@ -145,7 +145,7 @@ class block_chaside extends block_base {
         // Gap alerts (if any)
         if (!empty($results['resumen_ejecutivo']['alertas_brecha'])) {
             echo '<div class="chaside-gap-alerts mb-3">';
-            echo '<h6 class="mb-2">' . get_string('gap_alerts', 'block_chaside') . '</h6>';
+            echo '<h6 class="mb-2 font-weight-bold">' . get_string('gap_alerts', 'block_chaside') . '</h6>';
             foreach ($results['resumen_ejecutivo']['alertas_brecha'] as $alert) {
                 $badge_class = 'badge-warning';
                 if ($alert['tipo'] == get_string('gap_interest_higher', 'block_chaside')) {
@@ -160,7 +160,7 @@ class block_chaside extends block_base {
         
         // Quick recommendations
         echo '<div class="chaside-recommendations mb-3">';
-        echo '<h6 class="mb-2">' . get_string('recommendations', 'block_chaside') . '</h6>';
+        echo '<h6 class="mb-2 font-weight-bold">' . get_string('recommendations', 'block_chaside') . '</h6>';
         echo '<ul class="list-unstyled">';
         $rec_count = 0;
         foreach ($results['recomendaciones'] as $recommendation) {
@@ -183,6 +183,13 @@ class block_chaside extends block_base {
         echo '</div>';
         
         echo '</div>';
+        
+        // Add custom CSS for results block
+        echo '<style>
+        .block_chaside .chaside-results-block .chaside-actions .btn {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        }
+        </style>';
     }
     
     private function show_test_invitation($response) {
@@ -193,7 +200,7 @@ class block_chaside extends block_base {
         // Header with icon
         echo '<div class="chaside-header text-center mb-3">';
         echo '<i class="fa fa-compass" style="font-size: 2.2em; color: #5e35b1;"></i>';
-        echo '<h6 class="mt-2 mb-1">' . get_string('vocational_orientation', 'block_chaside') . '</h6>';
+        echo '<h6 class="mt-2 mb-1 font-weight-bold">' . get_string('vocational_orientation', 'block_chaside') . '</h6>';
         echo '<small class="text-muted">' . get_string('discover_your_interests', 'block_chaside') . '</small>';
         echo '</div>';
         
@@ -207,26 +214,66 @@ class block_chaside extends block_base {
             }
             $progress_percentage = ($answered_count / 98) * 100;
             
+            // Check if all questions are answered but test not completed
+            $all_answered = ($answered_count == 98);
+            
+            if ($all_answered) {
+                // Show special message when all questions answered (same style as personality_test)
+                echo '<div class="alert alert-warning mb-3" style="padding: 12px 15px; margin-bottom: 15px; border-left: 4px solid #ffc107; background-color: #fff3cd; border-radius: 4px;">';
+                echo '<div style="display: flex; align-items: start;">';
+                echo '<i class="fa fa-exclamation-triangle" style="color: #856404; margin-right: 10px; margin-top: 2px; font-size: 1.2em;"></i>';
+                echo '<div>';
+                echo '<strong style="color: #856404;">' . get_string('all_answered_title', 'block_chaside') . '</strong><br>';
+                echo '<small style="color: #856404;">' . get_string('all_answered_message', 'block_chaside') . '</small>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                
+                $button_text = get_string('finish_test_now', 'block_chaside');
+                $button_icon = 'fa-flag-checkered';
+                $button_class = 'btn-success';
+                $scroll_to_finish = true;
+            } else {
+                // Show test description when in progress (same style as personality_test)
+                echo '<div class="chaside-description mb-3" style="background: white; padding: 10px 12px; border-radius: 5px; border-left: 3px solid #673ab7;">';
+                echo '<small class="text-muted" style="line-height: 1.5;">';
+                echo '<i class="fa fa-info-circle" style="color: #673ab7;"></i> ';
+                echo get_string('test_description_short', 'block_chaside');
+                echo '</small>';
+                echo '</div>';
+                
+                $button_text = get_string('continue_test', 'block_chaside');
+                $button_icon = 'fa-play';
+                $button_class = 'btn-primary';
+                $scroll_to_finish = false;
+                
+                // Find first unanswered question for scroll parameter
+                $first_unanswered = null;
+                for ($i = 1; $i <= 98; $i++) {
+                    if (!isset($response->{"q{$i}"}) || $response->{"q{$i}"} === null) {
+                        $first_unanswered = $i;
+                        break;
+                    }
+                }
+            }
+            
+            // Show progress bar with block colors (always shown when in progress)
             echo '<div class="chaside-progress mb-3">';
             echo '<div class="d-flex justify-content-between align-items-center mb-2">';
             echo '<span class="small font-weight-bold">' . get_string('your_progress', 'block_chaside') . '</span>';
             echo '<span class="small text-muted">' . $answered_count . '/98</span>';
             echo '</div>';
-            echo '<div class="progress mb-2" style="height: 8px;">';
-            echo '<div class="progress-bar bg-success" style="width: ' . $progress_percentage . '%"></div>';
+            echo '<div class="progress mb-2" style="height: 8px; background-color: #f3e5f5;">';
+            echo '<div class="progress-bar" style="width: ' . $progress_percentage . '%; background: linear-gradient(90deg, #9575cd 0%, #673ab7 100%);"></div>';
             echo '</div>';
-            echo '<small class="text-muted">' . number_format($progress_percentage, 1) . '% ' . get_string('completed', 'block_chaside') . '</small>';
+            echo '<small class="text-muted">' . number_format($progress_percentage, 1) . '% ' . get_string('completed_status', 'block_chaside') . '</small>';
             echo '</div>';
-            
-            $button_text = get_string('continue_test', 'block_chaside');
-            $button_icon = 'fa-play';
-            $button_class = 'btn-success';
         } else {
             // Show test description for new test
             echo '<div class="chaside-description mb-3">';
             echo '<div class="card border-info">';
             echo '<div class="card-body p-3">';
-            echo '<h6 class="card-title">';
+            echo '<h6 class="card-title font-weight-bold">';
             echo '<i class="fa fa-info-circle text-info"></i> ';
             echo get_string('what_is_chaside', 'block_chaside');
             echo '</h6>';
@@ -250,29 +297,52 @@ class block_chaside extends block_base {
         
         // Calculate which page to start on
         $start_page = 1;
+        $scroll_param = null;
+        
         if ($response) {
             // Find first unanswered question
             $questions_per_page = 10;
             $first_empty = null;
-            for ($i = 1; $i <= 98; $i++) {
-                $q_field = "q{$i}";
-                // A question is answered if the field exists AND is not null
-                // (0 is a valid answer for "No me gusta", so we check !== null)
-                if (!isset($response->$q_field) || $response->$q_field === null) {
-                    $first_empty = $i;
-                    $start_page = ceil($i / $questions_per_page);
-                    break;
+            
+            if (isset($all_answered) && $all_answered) {
+                // If all answered, go to last page and scroll to finish button
+                $start_page = ceil(98 / $questions_per_page);
+                $scroll_param = 'finish';
+            } else {
+                // Find first unanswered question
+                for ($i = 1; $i <= 98; $i++) {
+                    $q_field = "q{$i}";
+                    if (!isset($response->$q_field) || $response->$q_field === null) {
+                        $first_empty = $i;
+                        $start_page = ceil($i / $questions_per_page);
+                        $scroll_param = $first_empty;
+                        break;
+                    }
                 }
             }
         }
         
-        $url = new moodle_url('/blocks/chaside/view.php', array(
+        $url_params = array(
             'courseid' => $COURSE->id,
             'blockid' => $this->instance->id,
-            'page' => $start_page,
-            'scroll' => $first_empty
-        ));
-        echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block" style="' . ($button_class == 'btn-primary' ? 'background-color: #673ab7; border-color: #673ab7;' : '') . '">';
+            'page' => $start_page
+        );
+        
+        if ($scroll_param !== null) {
+            $url_params['scroll'] = $scroll_param;
+        }
+        
+        $url = new moodle_url('/blocks/chaside/view.php', $url_params);
+        
+        // Button styling based on state
+        $button_style = '';
+        if ($button_class == 'btn-primary') {
+            $button_style = 'background: linear-gradient(135deg, #673ab7 0%, #5e35b1 100%); border-color: #673ab7;';
+        } else if ($button_class == 'btn-success') {
+            $button_style = 'background: linear-gradient(135deg, #28a745 0%, #218838 100%); border-color: #28a745;';
+        }
+        
+        echo '<a href="' . $url . '" class="btn ' . $button_class . ' btn-block" style="' . $button_style . '">';
         echo '<i class="fa ' . $button_icon . '"></i> ' . $button_text;
         echo '</a>';
         echo '</div>';
@@ -281,40 +351,54 @@ class block_chaside extends block_base {
         
         // Add custom CSS
         echo '<style>
-        .chaside-invitation-block {
-            padding: 15px;
-            background: linear-gradient(135deg, #ede7f6 0%, #f8f9fa 100%);
-            border-radius: 8px;
-            border: 1px solid #d1c4e9;
+        .block_chaside .chaside-invitation-block {
+            padding: 15px !important;
+            background: linear-gradient(135deg, #ede7f6 0%, #f8f9fa 100%) !important;
+            border-radius: 8px !important;
+            border: 1px solid #d1c4e9 !important;
         }
-        .chaside-header i {
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .block_chaside .chaside-header i {
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
         }
-        .chaside-progress {
-            background: white;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
+        .block_chaside .chaside-progress {
+            background: white !important;
+            padding: 12px !important;
+            border-radius: 5px !important;
+            border: 1px solid #e9ecef !important;
         }
-        .chaside-description .card {
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .block_chaside .chaside-description .card {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
         }
-        .chaside-actions .btn {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-weight: 500;
-            transition: all 0.3s ease;
+        /* Eliminar solo el pin del título interior (h6.card-title) */
+        .block_chaside .chaside-description .card-title::before,
+        .block_chaside .chaside-description .card-title::after {
+            content: none !important;
+            display: none !important;
         }
-        .chaside-actions .btn-primary {
-            background-color: #673ab7;
-            border-color: #673ab7;
+        .block_chaside .chaside-description .card-title {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            border-bottom: none !important;
+            font-weight: bold !important;
         }
-        .chaside-actions .btn-primary:hover {
-            background-color: #5e35b1;
-            border-color: #512da8;
+        .block_chaside .chaside-invitation-block .chaside-actions .btn {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
         }
-        .chaside-actions .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        .block_chaside .chaside-invitation-block .chaside-actions .btn-primary {
+            background-color: #673ab7 !important;
+            border-color: #673ab7 !important;
+        }
+        .block_chaside .chaside-invitation-block .chaside-actions .btn-primary:hover {
+            background-color: #5e35b1 !important;
+            border-color: #512da8 !important;
+        }
+        .block_chaside .chaside-invitation-block .chaside-actions .btn:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
         }
         </style>';
     }
@@ -359,7 +443,7 @@ class block_chaside extends block_base {
         // Header
         echo '<div class="chaside-header text-center mb-3">';
         echo '<i class="fa fa-chart-line text-success" style="font-size: 1.5em;"></i>';
-        echo '<h6 class="mt-2 mb-1">' . get_string('management_title', 'block_chaside') . '</h6>';
+        echo '<h6 class="mt-2 mb-1 font-weight-bold">' . get_string('management_title', 'block_chaside') . '</h6>';
         echo '<small class="text-muted">' . get_string('course_overview', 'block_chaside') . '</small>';
         echo '</div>';
         
@@ -413,12 +497,12 @@ class block_chaside extends block_base {
             $recent_responses = $DB->get_records_sql($sql, $params, 0, 3);
                 
             echo '<div class="chaside-recent mb-3">';
-            echo '<h6 class="mb-2">' . get_string('recent_completions', 'block_chaside') . '</h6>';
+            echo '<h6 class="mb-2 font-weight-bold">' . get_string('recent_completions', 'block_chaside') . '</h6>';
             foreach ($recent_responses as $response) {
                 $user = $DB->get_record('user', array('id' => $response->userid));
                 echo '<div class="d-flex justify-content-between align-items-center mb-1">';
                 echo '<span class="small">' . fullname($user) . '</span>';
-                echo '<span class="badge badge-success small">' . userdate($response->timemodified, '%d/%m') . '</span>';
+                echo '<span class="badge badge-success small">' . userdate($response->timemodified, get_string('strftimedatefullshort')) . '</span>';
                 echo '</div>';
             }
             echo '</div>';
@@ -429,33 +513,33 @@ class block_chaside extends block_base {
         
         // Add custom CSS
         echo '<style>
-        .chaside-management-block {
+        .block_chaside .chaside-management-block {
             padding: 15px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
             border-radius: 8px;
             border: 1px solid #dee2e6;
         }
-        .stat-card {
+        .block_chaside .stat-card {
             padding: 8px;
             background: white;
             border-radius: 5px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .stat-number {
+        .block_chaside .stat-number {
             font-size: 1.2em;
             font-weight: bold;
         }
-        .stat-label {
+        .block_chaside .stat-label {
             font-size: 0.75em;
             color: #6c757d;
         }
-        .chaside-recent {
+        .block_chaside .chaside-recent {
             background: white;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #e9ecef;
         }
-        .chaside-actions .btn {
+        .block_chaside .chaside-management-block .chaside-actions .btn {
             box-shadow: 0 2px 4px rgba(0,123,255,0.2);
         }
         </style>';
@@ -728,7 +812,7 @@ class ChasideFacade {
         $gap_alerts = array();
         
         if ($top1) {
-            $quick_reading = "Mayor fortaleza en " . $labels[$top1['area']];
+            $quick_reading = get_string('highest_strength_in', 'block_chaside') . " " . $labels[$top1['area']];
             if ($top2) {
                 $quick_reading .= " y " . $labels[$top2['area']];
             }

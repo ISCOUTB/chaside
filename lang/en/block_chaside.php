@@ -1,6 +1,7 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
+// Block name and settings
 $string['pluginname'] = 'CHASIDE - Vocational Test';
 $string['chaside'] = 'CHASIDE';
 $string['chaside:addinstance'] = 'Add a new CHASIDE block';
@@ -9,39 +10,49 @@ $string['chaside:take_test'] = 'Take the CHASIDE test';
 $string['chaside:viewreports'] = 'View CHASIDE test reports';
 $string['chaside:manage_responses'] = 'Manage CHASIDE test responses';
 
+// General strings
 $string['test_title'] = 'CHASIDE Vocational Orientation Test';
 $string['test_instructions'] = 'Test Instructions';
 $string['test_description'] = 'This test will help you discover your vocational interests. Answer "YES" or "NO" to each question according to what you really like to do.';
+$string['test_description_short'] = 'A vocational test that identifies your interests in 7 professional areas through 98 questions to help you make informed academic and career decisions.';
 $string['start_test'] = 'Start Test';
 $string['continue_test'] = 'Continue Test';
 $string['view_results'] = 'View Results';
 $string['test_completed'] = 'Test Completed';
 $string['date_not_available'] = 'Date not available';
-
-$string['previous'] = 'Previous';
-$string['next'] = 'Next';
-$string['finish'] = 'Finish';
-$string['save_progress'] = 'Save Progress';
-$string['question'] = 'Question';
 $string['of'] = 'of';
+$string['highest_strength_in'] = 'Highest strength in';
 
 // Button labels
 $string['btn_previous'] = 'Previous Page';
 $string['btn_next'] = 'Next Page';
 $string['btn_finish'] = 'Finish Test';
-$string['btn_save_progress'] = 'Save Progress';
-
 $string['yes'] = 'YES';
 $string['no'] = 'NO';
 
+// Test in progress strings
+$string['test_in_progress'] = 'Test in Progress';
+$string['test_in_progress_message'] = '{$a} is currently taking the CHASIDE test.';
+$string['has_answered'] = 'Has answered';
+$string['questions'] = 'questions';
+$string['results_available_when_complete'] = 'Results will be available once {$a} completes the test by clicking the "Finish Test" button.';
+$string['back_to_admin'] = 'Back to Administration';
+$string['progress_label'] = 'Progress';
+
+// Labels for results display
 $string['your_results'] = 'Your Results';
 $string['area_scores'] = 'Area Scores';
 $string['top_areas'] = 'Your Top Areas';
 $string['your_top_area'] = 'Your Top Area';
+$string['second_top_area'] = 'Second Top Area';
 $string['other_strong_areas'] = 'Other Strong Areas';
 $string['area_description'] = 'Area Description';
 $string['career_suggestions'] = 'Career Suggestions';
+$string['total_score'] = 'Total Score';
+$string['area_label'] = 'Area';
+$string['scores_chart_title'] = 'Total Scores Chart';
 
+// Area names
 $string['area_c'] = 'Administrative (C)';
 $string['area_h'] = 'Humanities/Social/Legal (H)';
 $string['area_a'] = 'Artistic (A)';
@@ -50,15 +61,7 @@ $string['area_i'] = 'Technical Education (I)';
 $string['area_d'] = 'Defense and Security (D)';
 $string['area_e'] = 'Experimental Sciences (E)';
 
-// Area names in uppercase (for compatibility)
-$string['area_C'] = 'Administrative (C)';
-$string['area_H'] = 'Humanities/Social/Legal (H)';
-$string['area_A'] = 'Artistic (A)';
-$string['area_S'] = 'Health Sciences (S)';
-$string['area_I'] = 'Technical Education (I)';
-$string['area_D'] = 'Defense and Security (D)';
-$string['area_E'] = 'Experimental Sciences (E)';
-
+// Area descriptions
 $string['desc_c'] = 'Strengths in organization, leadership and numerical management.';
 $string['desc_h'] = 'Interest in language, justice and social analysis.';
 $string['desc_a'] = 'Creativity and aesthetic sensitivity for problem solving.';
@@ -67,15 +70,7 @@ $string['desc_i'] = 'Technical-analytical thinking and planning.';
 $string['desc_d'] = 'Discipline, teamwork and perseverance.';
 $string['desc_e'] = 'Rigorous observation, scientific method and research.';
 
-// Area descriptions in uppercase (for compatibility)
-$string['desc_C'] = 'Strengths in organization, leadership and numerical management.';
-$string['desc_H'] = 'Interest in language, justice and social analysis.';
-$string['desc_A'] = 'Creativity and aesthetic sensitivity for problem solving.';
-$string['desc_S'] = 'Service orientation, precision and people care.';
-$string['desc_I'] = 'Technical-analytical thinking and planning.';
-$string['desc_D'] = 'Discipline, teamwork and perseverance.';
-$string['desc_E'] = 'Rigorous observation, scientific method and research.';
-
+// Questions
 $string['q1'] = 'Would you accept working writing articles in the economic section of a newspaper?';
 $string['q2'] = 'Would you offer to organize a bachelor party for one of your friends?';
 $string['q3'] = 'Would you like to direct/create an urbanization project in your province?';
@@ -178,7 +173,7 @@ $string['q98'] = 'Are you able to convince others of your opinions?';
 // Admin strings
 $string['admin_dashboard'] = 'Administration Panel';
 $string['student'] = 'Student';
-$string['completiondate'] = 'Completion Date';
+$string['completiondate'] = 'Date of Last Action';
 $string['actions'] = 'Actions';
 $string['viewresults'] = 'View results';
 $string['deleteresponse'] = 'Delete response';
@@ -189,19 +184,18 @@ $string['confirm_delete'] = 'Confirm deletion';
 $string['admin_dashboard_description'] = 'This panel shows all students who have completed the CHASIDE test in this course. You can delete a student\'s responses by clicking the delete button.';
 
 // Management interface strings
-$string['management_title'] = 'Course Management';
+$string['management_title'] = 'CHASIDE Test Management';
 $string['course_overview'] = 'Course Overview';
 $string['completion_rate'] = 'Completion Rate';
-$string['completed'] = 'completed';
-$string['in_progress'] = 'in progress';
-$string['students_completed'] = 'students completed';
+$string['completed'] = 'Completed';
+$string['in_progress'] = 'In Progress';
+$string['students_completed'] = 'students completed the test';
 $string['recent_completions'] = 'Recent Completions';
 $string['manage_responses'] = 'Administration Panel';
 $string['statistics'] = 'Statistics';
 $string['enrolled_students'] = 'Enrolled Students';
 $string['total_completed'] = 'Total Completed';
 $string['participation_rate'] = 'Participation Rate';
-$string['avg_completion_time'] = 'Average Completion Time';
 $string['area_statistics'] = 'Area Statistics';
 $string['average_score'] = 'Average Score';
 $string['preference'] = 'preference';
@@ -210,6 +204,7 @@ $string['student_responses'] = 'Student Responses';
 $string['student_name'] = 'Student Name';
 $string['completion_status'] = 'Completion Status';
 $string['response_date'] = 'Response Date';
+$string['completed_status'] = 'Completed';
 $string['top_area'] = 'Top Area';
 $string['view_details'] = 'View Details';
 $string['not_started'] = 'Not Started';
@@ -218,42 +213,26 @@ $string['not_started'] = 'Not Started';
 $string['vocational_orientation'] = 'Vocational Orientation';
 $string['discover_your_interests'] = 'Discover your interests and professional skills';
 $string['what_is_chaside'] = 'What is CHASIDE?';
-$string['chaside_description'] = 'CHASIDE is a vocational test that helps you identify your interests and professional aptitudes through questions about different activities and work areas.';
-$string['feature_98_questions'] = '98 questions designed to evaluate your preferences';
-$string['feature_7_areas'] = '7 different vocational areas (C-H-A-S-I-D-E)';
-$string['feature_instant_results'] = 'Instant and detailed results';
-$string['questions_unanswered'] = 'questions unanswered';
+$string['chaside_description'] = 'A vocational test that identifies your interests in 7 professional areas to guide your academic and career decisions.';
+$string['feature_98_questions'] = '98 Strategic Questions';
+$string['feature_7_areas'] = '7 Vocational Areas';
+$string['feature_instant_results'] = 'Instant and Detailed Results';
+$string['questions_unanswered'] = 'Questions Unanswered';
 $string['progress_saved'] = 'Progress saved successfully. Keep it up!!!';
-$string['test_completed_success'] = 'Test completed successfully. Redirecting to results...';
-$string['points'] = 'points';
+$string['test_completed_success'] = 'Test completed successfully. You can now view your results in the sidebar.';
+$string['points'] = 'Points';
 $string['view_detailed_results'] = 'View detailed results';
 
 // Additional interface strings
 $string['teachers_redirect_message'] = 'Teachers are redirected to the management panel';
 $string['complete_all_questions'] = 'Complete all questions to finish the test';
-$string['questions_remaining'] = 'questions remaining';
+$string['questions_remaining'] = 'Questions Remaining';
 $string['test_not_found'] = 'Test not found or not completed';
 $string['completion_date_label'] = 'Completion date:';
-$string['back_to_course'] = 'Back to course';
-$string['your_progress'] = 'Your progress';
+$string['back_to_course'] = 'Back to Course';
+$string['your_progress'] = 'Your Progress';
 
-// Export functionality strings
-$string['no_responses_yet'] = 'No responses available yet for this course';
-$string['export_student_id'] = 'Student ID';
-$string['export_student_name'] = 'Student Name';
-$string['export_student_email'] = 'Student Email';
-$string['export_completion_date'] = 'Completion Date';
-$string['export_administrative_score'] = 'Administrative Score (C)';
-$string['export_humanities_score'] = 'Humanities/Social/Legal Score (H)';
-$string['export_artistic_score'] = 'Artistic Score (A)';
-$string['export_health_sciences_score'] = 'Health Sciences Score (S)';
-$string['export_technical_score'] = 'Technical Education Score (I)';
-$string['export_defense_security_score'] = 'Defense and Security Score (D)';
-$string['export_experimental_sciences_score'] = 'Experimental Sciences Score (E)';
-$string['export_top_area'] = 'Top Area';
-$string['export_score'] = 'Score';
-
-// New strings for official CHASIDE format
+// Official CHASIDE format
 $string['interests'] = 'Interests';
 $string['aptitudes'] = 'Aptitudes';
 $string['total'] = 'Total';
@@ -288,14 +267,33 @@ $string['rec_interest_higher'] = 'If Interest ≫ Aptitude: plan practice and tu
 $string['rec_aptitude_higher'] = 'If Aptitude ≫ Interest: experiment with microprojects to validate motivation.';
 $string['rec_balanced_development'] = 'Develop both interests and aptitudes in a balanced way.';
 $string['rec_explore_combinations'] = 'Explore combinations between your strongest areas.';
-
 $string['orientation_note'] = 'This result is indicative; it is recommended to complement with dialogue and practical experiences.';
 
-
+// Export functionality strings
+$string['export_student_id'] = 'Student ID';
+$string['export_student_name'] = 'Student Name';
+$string['export_student_email'] = 'Student Email';
+$string['export_completion_date'] = 'Completion Date';
+$string['export_administrative_score'] = 'Administrative Score (C)';
+$string['export_humanities_score'] = 'Humanities/Social/Legal Score (H)';
+$string['export_artistic_score'] = 'Artistic Score (A)';
+$string['export_health_sciences_score'] = 'Health Sciences Score (S)';
+$string['export_technical_score'] = 'Technical Education Score (I)';
+$string['export_defense_security_score'] = 'Defense and Security Score (D)';
+$string['export_experimental_sciences_score'] = 'Experimental Sciences Score (E)';
+$string['export_top_area'] = 'Top Area';
+$string['export_score'] = 'Score';
+$string['export_filename'] = 'CHASIDE_Vocational_Orientation';
 
 // Validation and feedback strings
 $string['note'] = 'Note';
 $string['all_questions_required'] = 'All questions on each page are required. You must answer all of them before continuing.';
 
-// Export filenames
-$string['export_filename'] = 'CHASIDE_Vocational_Orientation';
+// Security validation strings
+$string['complete_previous_pages'] = 'Please complete all questions on previous pages before accessing this page.';
+$string['all_questions_must_be_answered'] = 'You must answer all 98 questions before finishing the test. You have been redirected to the first unanswered question.';
+
+// All questions answered strings
+$string['all_answered_title'] = 'All Questions Answered!';
+$string['all_answered_message'] = 'You have answered all 98 questions. Don\'t forget to click "Finish Test" to submit your answers and see your vocational orientation results!';
+$string['finish_test_now'] = 'Finish Test';

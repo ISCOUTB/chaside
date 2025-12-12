@@ -25,5 +25,47 @@ function xmldb_block_chaside_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2025120901, 'chaside');
     }
 
+    // Fix userid index to ensure it's UNIQUE and remove any duplicates
+    if ($oldversion < 2025121101) {
+        $table = new xmldb_table('block_chaside_responses');
+        
+        // Drop any existing non-unique indexes on userid (Moodle may have created with different names)
+        $possible_index_names = ['mdl_blocchasresp_use_ix', 'userid', 'userid_idx', 'userid_ix'];
+        foreach ($possible_index_names as $index_name) {
+            $index = new xmldb_index($index_name, XMLDB_INDEX_NOTUNIQUE, ['userid']);
+            if ($dbman->index_exists($table, $index)) {
+                $dbman->drop_index($table, $index);
+            }
+        }
+        
+        // Remove duplicate rows before adding unique constraint
+        // Keep the oldest record (lowest id) for each userid
+        $sql = "SELECT userid, MIN(id) as keepid 
+                FROM {block_chaside_responses} 
+                GROUP BY userid 
+                HAVING COUNT(*) > 1";
+        
+        $duplicates = $DB->get_records_sql($sql);
+        
+        if (!empty($duplicates)) {
+            foreach ($duplicates as $dup) {
+                // Delete all records for this userid except the one we want to keep
+                $DB->execute(
+                    "DELETE FROM {block_chaside_responses} 
+                     WHERE userid = :userid AND id != :keepid",
+                    ['userid' => $dup->userid, 'keepid' => $dup->keepid]
+                );
+            }
+        }
+        
+        // Now add/recreate the UNIQUE index
+        $unique_index = new xmldb_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
+        if (!$dbman->index_exists($table, $unique_index)) {
+            $dbman->add_index($table, $unique_index);
+        }
+        
+        upgrade_block_savepoint(true, 2025121101, 'chaside');
+    }
+
     return true;
 }

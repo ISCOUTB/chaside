@@ -7,7 +7,7 @@ require_once('block_chaside.php');
 $courseid = required_param('courseid', PARAM_INT);
 $blockid = required_param('blockid', PARAM_INT);
 $page = optional_param('page', 1, PARAM_INT);
-$scroll_to_question = optional_param('scroll', 0, PARAM_INT);
+$scroll_to_question = optional_param('scroll', '', PARAM_RAW); // Can be question number, 'finish', or 'highlight_first'
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $context = context_course::instance($courseid);
@@ -19,6 +19,22 @@ require_capability('block/chaside:take_test', $context);
 if (has_capability('block/chaside:manage_responses', $context)) {
     $manage_url = new moodle_url('/blocks/chaside/manage.php', array('courseid' => $courseid, 'blockid' => $blockid));
     redirect($manage_url, get_string('teachers_redirect_message', 'block_chaside'));
+}
+
+// If scroll parameter is a question number, calculate the correct page
+$questions_per_page = 10;
+if ($scroll_to_question && is_numeric($scroll_to_question)) {
+    $question_num = (int)$scroll_to_question;
+    $calculated_page = ceil($question_num / $questions_per_page);
+    if ($calculated_page != $page) {
+        // Redirect to correct page with scroll parameter
+        redirect(new moodle_url('/blocks/chaside/view.php', array(
+            'courseid' => $courseid,
+            'blockid' => $blockid,
+            'page' => $calculated_page,
+            'scroll' => $scroll_to_question
+        )));
+    }
 }
 
 $PAGE->set_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page));
@@ -118,20 +134,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Guardar datos independientemente de la acción
-    if ($existing_response) {
-        $DB->update_record('block_chaside_responses', $data);
-    } else {
-        $DB->insert_record('block_chaside_responses', $data);
-    }
-    
     // Determinar total de páginas
     $total_pages = ceil(98 / $questions_per_page);
     
     // Procesar según la acción del botón
     switch ($action) {
+        case 'autosave':
+            // Silent auto-save - no validation, no redirect
+            if ($existing_response) {
+                $DB->update_record('block_chaside_responses', $data);
+            } else {
+                try {
+                    $DB->insert_record('block_chaside_responses', $data);
+                } catch (dml_exception $e) {
+                    // Race condition: another request inserted the record
+                    $current_record = $DB->get_record('block_chaside_responses', array('userid' => $USER->id));
+                    if ($current_record) {
+                        $data['id'] = $current_record->id;
+                        $DB->update_record('block_chaside_responses', $data);
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+            // Return JSON response for AJAX
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+            
         case 'previous':
             // Ir a página anterior - siempre permite (guarda automáticamente)
+            if ($existing_response) {
+                $DB->update_record('block_chaside_responses', $data);
+            } else {
+                try {
+                    $DB->insert_record('block_chaside_responses', $data);
+                } catch (dml_exception $e) {
+                    // Race condition: another request inserted the record
+                    $current_record = $DB->get_record('block_chaside_responses', array('userid' => $USER->id));
+                    if ($current_record) {
+                        $data['id'] = $current_record->id;
+                        $DB->update_record('block_chaside_responses', $data);
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+            
             if ($page > 1) {
                 $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page - 1));
                 redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
@@ -145,14 +194,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = get_string('complete_current_page', 'block_chaside') . ' (' . count($missing_questions_current_page) . ' ' . get_string('questions_unanswered', 'block_chaside') . ')';
                     redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
                 } else {
-                    $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1));
+                    // Guardar progreso antes de navegar
+                    if ($existing_response) {
+                        $DB->update_record('block_chaside_responses', $data);
+                    } else {
+                        try {
+                            $DB->insert_record('block_chaside_responses', $data);
+                        } catch (dml_exception $e) {
+                            // Race condition: another request inserted the record
+                            $current_record = $DB->get_record('block_chaside_responses', array('userid' => $USER->id));
+                            if ($current_record) {
+                                $data['id'] = $current_record->id;
+                                $DB->update_record('block_chaside_responses', $data);
+                            } else {
+                                throw $e;
+                            }
+                        }
+                    }
+                    
+                    $redirect_url = new moodle_url('/blocks/chaside/view.php', array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $page + 1, 'scroll' => 'highlight_first'));
                     redirect($redirect_url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
                 }
             }
             break;
             
         case 'finish':
-            if ($completed) {
+            // SECURITY: Validate ALL 98 questions are answered before finishing
+            $all_questions_answered = true;
+            $missing_questions = array();
+            
+            for ($i = 1; $i <= 98; $i++) {
+                if (!isset($data["q{$i}"]) || $data["q{$i}"] === null) {
+                    $all_questions_answered = false;
+                    $missing_questions[] = $i;
+                }
+            }
+            
+            if ($all_questions_answered) {
                 // Calcular puntuaciones solo cuando esté completamente terminado
                 $scores = $facade->calculate_scores($data);
                 $data['score_c'] = $scores['C'];
@@ -171,27 +249,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $course_url = new moodle_url('/course/view.php', array('id' => $courseid));
                 redirect($course_url, get_string('test_completed_success', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
             } else {
-                $missing_questions = array();
-                for ($i = 1; $i <= 98; $i++) {
-                    if (!isset($data["q{$i}"]) || $data["q{$i}"] === null) {
-                        $missing_questions[] = $i;
-                    }
-                }
-                $message = get_string('complete_all_questions', 'block_chaside') . ' (' . count($missing_questions) . ' ' . get_string('questions_remaining', 'block_chaside') . ')';
-                redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
+                // Find first unanswered question and redirect to that page
+                $first_unanswered = $missing_questions[0];
+                $redirect_page = ceil($first_unanswered / $questions_per_page);
+                
+                $message = get_string('all_questions_must_be_answered', 'block_chaside') . ' (' . count($missing_questions) . ' ' . get_string('questions_remaining', 'block_chaside') . ')';
+                $redirect_url = new moodle_url('/blocks/chaside/view.php', 
+                               array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $redirect_page));
+                redirect($redirect_url, $message, null, \core\output\notification::NOTIFY_ERROR);
             }
-            break;
-            
-        case 'save':
-        default:
-            // Guardar progreso sin validar - permite guardar parcialmente
-            // Actualizar o insertar el registro
-            if ($existing_response) {
-                $DB->update_record('block_chaside_responses', $data);
-            } else {
-                $DB->insert_record('block_chaside_responses', $data);
-            }
-            redirect($PAGE->url, get_string('progress_saved', 'block_chaside'), null, \core\output\notification::NOTIFY_SUCCESS);
             break;
     }
 }
@@ -210,6 +276,40 @@ $total_pages = ceil(98 / $questions_per_page);
 $start_question = ($page - 1) * $questions_per_page + 1;
 $end_question = min($page * $questions_per_page, 98);
 
+// SECURITY: Validate that user cannot skip pages without completing previous ones
+if ($existing_response && $page > 1) {
+    // Check all questions from page 1 to current page - 1
+    $max_allowed_page = 1;
+    
+    for ($p = 1; $p < $page; $p++) {
+        $page_start = ($p - 1) * $questions_per_page + 1;
+        $page_end = min($p * $questions_per_page, 98);
+        $page_complete = true;
+        
+        for ($i = $page_start; $i <= $page_end; $i++) {
+            $field = "q{$i}";
+            if (!isset($existing_response->$field) || $existing_response->$field === null) {
+                $page_complete = false;
+                break;
+            }
+        }
+        
+        if ($page_complete) {
+            $max_allowed_page = $p + 1;
+        } else {
+            break;
+        }
+    }
+    
+    // If trying to access a page beyond allowed, redirect to max allowed
+    if ($page > $max_allowed_page) {
+        redirect(new moodle_url('/blocks/chaside/view.php', 
+                 array('courseid' => $courseid, 'blockid' => $blockid, 'page' => $max_allowed_page)),
+                 get_string('complete_previous_pages', 'block_chaside'),
+                 null, \core\output\notification::NOTIFY_WARNING);
+    }
+}
+
 echo html_writer::tag('h2', get_string('test_title', 'block_chaside'));
 echo html_writer::tag('p', get_string('test_description', 'block_chaside'));
 
@@ -219,23 +319,9 @@ echo '<strong>' . get_string('note', 'block_chaside') . ':</strong> ';
 echo get_string('all_questions_required', 'block_chaside');
 echo '</div>';
 
-// Barra de progreso
-$progress_percentage = (($page - 1) * $questions_per_page + ($end_question - $start_question + 1)) / 98 * 100;
-echo html_writer::start_tag('div', array('class' => 'progress mb-3'));
-echo html_writer::tag('div', '', array(
-    'class' => 'progress-bar',
-    'role' => 'progressbar',
-    'style' => "width: {$progress_percentage}%",
-    'aria-valuenow' => $progress_percentage,
-    'aria-valuemin' => '0',
-    'aria-valuemax' => '100'
-));
-echo html_writer::end_tag('div');
-
-echo html_writer::tag('p', get_string('question', 'block_chaside') . " {$start_question} " . get_string('of', 'block_chaside') . " 98");
 
 // Formulario
-echo html_writer::start_tag('form', array('method' => 'post', 'action' => ''));
+echo html_writer::start_tag('form', array('method' => 'post', 'action' => '', 'id' => 'chasideTestForm'));
 
 // Agregar token de seguridad CSRF
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
@@ -252,11 +338,11 @@ for ($i = $start_question; $i <= $end_question; $i++) {
     echo html_writer::start_tag('div', array('class' => 'card mb-3 shadow-sm', 'id' => "question-{$i}", 'data-question' => $i));
     echo html_writer::start_tag('div', array('class' => 'card-body'));
     
-    // Número y texto de la pregunta
+    // Texto de la pregunta
     echo html_writer::start_tag('div', array('class' => 'row align-items-center'));
     echo html_writer::start_tag('div', array('class' => 'col-md-8'));
     echo html_writer::tag('h6', 
-        html_writer::tag('span', $i, array('class' => 'badge bg-primary me-2')) . $question_text, 
+        $question_text, 
         array('class' => 'mb-3 question-text')
     );
     echo html_writer::end_tag('div');
@@ -266,9 +352,9 @@ for ($i = $start_question; $i <= $end_question; $i++) {
     echo html_writer::start_tag('div', array('class' => 'btn-group w-100', 'role' => 'group', 'aria-label' => 'Respuesta'));
     
     // Opción SÍ
-    $yes_classes = 'btn btn-outline-success flex-fill radio-btn';
+    $yes_classes = 'btn btn-outline-primary flex-fill radio-btn chaside-btn-yes';
     if ($current_value === '1') {
-        $yes_classes = 'btn btn-success flex-fill radio-btn active';
+        $yes_classes = 'btn btn-primary flex-fill radio-btn chaside-btn-yes active';
     }
     echo html_writer::start_tag('label', array('class' => $yes_classes, 'for' => "q{$i}_yes"));
     echo html_writer::empty_tag('input', array(
@@ -276,8 +362,8 @@ for ($i = $start_question; $i <= $end_question; $i++) {
         'name' => "q{$i}",
         'value' => '1',
         'id' => "q{$i}_yes",
-        // Keep input visually hidden but still interactive so change events fire
-        'style' => 'position: absolute; opacity: 0; pointer-events: none;',
+        // Keep input visually hidden but still usable for form submission and native toggling.
+        'style' => 'position: absolute; opacity: 0;',
         'checked' => ($current_value === '1') ? 'checked' : null
     ));
     echo html_writer::tag('i', '', array('class' => 'fa fa-check me-1'));
@@ -285,9 +371,9 @@ for ($i = $start_question; $i <= $end_question; $i++) {
     echo html_writer::end_tag('label');
     
     // Opción NO
-    $no_classes = 'btn btn-outline-danger flex-fill radio-btn';
+    $no_classes = 'btn btn-outline-secondary flex-fill radio-btn chaside-btn-no';
     if ($current_value === '0') {
-        $no_classes = 'btn btn-danger flex-fill radio-btn active';
+        $no_classes = 'btn btn-secondary flex-fill radio-btn chaside-btn-no active';
     }
     echo html_writer::start_tag('label', array('class' => $no_classes, 'for' => "q{$i}_no"));
     echo html_writer::empty_tag('input', array(
@@ -295,7 +381,7 @@ for ($i = $start_question; $i <= $end_question; $i++) {
         'name' => "q{$i}",
         'value' => '0',
         'id' => "q{$i}_no",
-        'style' => 'position: absolute; opacity: 0; pointer-events: none;',
+        'style' => 'position: absolute; opacity: 0;',
         'checked' => ($current_value === '0') ? 'checked' : null
     ));
     echo html_writer::tag('i', '', array('class' => 'fa fa-times me-1'));
@@ -329,15 +415,6 @@ echo html_writer::end_tag('div');
 
 // Columna derecha: Botones de acción
 echo html_writer::start_tag('div', array('class' => 'd-flex gap-2'));
-echo html_writer::tag('button',
-    '<i class="fa fa-save me-2"></i>' . get_string('btn_save_progress', 'block_chaside'),
-    array(
-        'type' => 'submit',
-        'name' => 'action',
-        'value' => 'save',
-        'class' => 'btn btn-info'
-    )
-);
 
 if ($page < $total_pages) {
     echo html_writer::tag('button',
@@ -368,94 +445,190 @@ echo html_writer::end_tag('form');
 // Agregar estilos CSS personalizados
 echo html_writer::start_tag('style');
 echo "
-.question-text {
-    font-weight: 500;
-    color: #212529;
-    line-height: 1.4;
+/* Colores del bloque CHASIDE (morado/purple) */
+:root {
+    --chaside-primary: #673ab7;
+    --chaside-primary-dark: #5e35b1;
+    --chaside-primary-darker: #512da8;
+    --chaside-secondary: #b39ddb;
+    --chaside-light: #ede7f6;
 }
 
-.card {
-    border: 1px solid #e9ecef;
-    transition: all 0.2s ease-in-out;
+body#page-blocks-chaside-view .question-text {
+    font-weight: 500 !important;
+    color: #212529 !important;
+    line-height: 1.4 !important;
+}
+
+body#page-blocks-chaside-view .card {
+    border: 1px solid #e9ecef !important;
+    transition: all 0.2s ease-in-out !important;
 }
 
 /* Estilo para preguntas sin responder después de intentar avanzar */
-.card.unanswered {
+body#page-blocks-chaside-view .card.unanswered {
     border: 2px solid #d32f2f !important;
     background-color: #ffebee !important;
 }
 
-.card.unanswered .question-text {
+body#page-blocks-chaside-view .card.unanswered .question-text {
     color: #d32f2f !important;
 }
 
-.card:hover {
-    border-color: #007bff;
-    box-shadow: 0 4px 8px rgba(0,123,255,0.1) !important;
+body#page-blocks-chaside-view .card:hover {
+    border-color: var(--chaside-primary) !important;
+    box-shadow: 0 4px 8px rgba(103, 58, 183, 0.1) !important;
 }
 
-.btn-group label {
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    font-weight: 500;
-    padding: 8px 16px;
+body#page-blocks-chaside-view .btn-group label {
+    cursor: pointer !important;
+    transition: all 0.2s ease-in-out !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
 }
 
-.btn-group label:hover {
-    transform: translateY(-1px);
+body#page-blocks-chaside-view .btn-group label:hover {
+    transform: translateY(-1px) !important;
 }
 
-.radio-btn {
-    position: relative;
+/* Botón Sí - Color primario del bloque (morado) */
+body#page-blocks-chaside-view .chaside-btn-yes.btn-outline-primary {
+    border-color: var(--chaside-primary) !important;
+    color: var(--chaside-primary) !important;
+    background-color: #ffffff !important;
 }
 
-.radio-btn input[type='radio'] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+body#page-blocks-chaside-view .chaside-btn-yes.btn-outline-primary:hover {
+    background: var(--chaside-light) !important;
+    color: var(--chaside-primary) !important;
 }
 
-.badge {
-    font-size: 0.85em;
-    min-width: 24px;
-    text-align: center;
+body#page-blocks-chaside-view .chaside-btn-yes.btn-primary,
+body#page-blocks-chaside-view .chaside-btn-yes.btn-primary.active {
+    background: linear-gradient(135deg, var(--chaside-primary) 0%, var(--chaside-primary-dark) 100%) !important;
+    border-color: var(--chaside-primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(103, 58, 183, 0.3) !important;
+}
+
+/* Botón No - Lila suave (color secundario del bloque) */
+body#page-blocks-chaside-view .chaside-btn-no.btn-outline-secondary {
+    border-color: var(--chaside-secondary) !important;
+    color: var(--chaside-secondary) !important;
+    background-color: #ffffff !important;
+}
+
+body#page-blocks-chaside-view .chaside-btn-no.btn-outline-secondary:hover {
+    background: var(--chaside-light) !important;
+    color: var(--chaside-secondary) !important;
+}
+
+body#page-blocks-chaside-view .chaside-btn-no.btn-secondary,
+body#page-blocks-chaside-view .chaside-btn-no.btn-secondary.active {
+    background: linear-gradient(135deg, var(--chaside-secondary) 0%, #9575cd 100%) !important;
+    border-color: var(--chaside-secondary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(179, 157, 219, 0.3) !important;
+}
+
+body#page-blocks-chaside-view .radio-btn {
+    position: relative !important;
+}
+
+body#page-blocks-chaside-view .radio-btn input[type='radio'] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+body#page-blocks-chaside-view .badge {
+    font-size: 0.85em !important;
+    min-width: 24px !important;
+    text-align: center !important;
+    color: #ffffff !important;
+    background-color: var(--chaside-primary) !important;
+}
+
+/* Botones de navegación con colores del bloque - MÁS ESPECÍFICOS */
+body#page-blocks-chaside-view form button.btn.btn-secondary,
+body#page-blocks-chaside-view form button.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+    border-color: #6c757d !important;
     color: #ffffff !important;
 }
 
-.progress {
-    height: 8px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
+body#page-blocks-chaside-view form button.btn.btn-secondary:hover,
+body#page-blocks-chaside-view form button.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3) !important;
+    color: #ffffff !important;
+    border-color: #6c757d !important;
 }
 
-.progress-bar {
-    background: linear-gradient(90deg, #007bff 0%, #28a745 100%);
-    transition: width 0.3s ease;
+/* Card highlight when all questions answered */
+body#page-blocks-chaside-view .card.all-answered-highlight {
+    border: 3px solid #28a745 !important;
+    background-color: #d4edda !important;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important;
+}
+
+body#page-blocks-chaside-view form button.btn.btn-primary,
+body#page-blocks-chaside-view form button.btn-primary {
+    background: linear-gradient(135deg, var(--chaside-primary) 0%, var(--chaside-primary-dark) 100%) !important;
+    border-color: var(--chaside-primary) !important;
+    color: #ffffff !important;
+}
+
+body#page-blocks-chaside-view form button.btn.btn-primary:hover,
+body#page-blocks-chaside-view form button.btn-primary:hover {
+    background: linear-gradient(135deg, var(--chaside-primary-dark) 0%, var(--chaside-primary-darker) 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3) !important;
+    color: #ffffff !important;
+    border-color: var(--chaside-primary) !important;
+}
+
+body#page-blocks-chaside-view form button.btn.btn-success,
+body#page-blocks-chaside-view form button.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+    border-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+body#page-blocks-chaside-view form button.btn.btn-success:hover,
+body#page-blocks-chaside-view form button.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important;
+    color: #ffffff !important;
+    border-color: #28a745 !important;
 }
 
 @media (max-width: 768px) {
-    .btn-group {
+    body#page-blocks-chaside-view .btn-group {
         flex-direction: column !important;
         width: 100% !important;
     }
     
-    .btn-group label {
-        margin-bottom: 5px;
+    body#page-blocks-chaside-view .btn-group label {
+        margin-bottom: 5px !important;
         border-radius: 4px !important;
     }
     
-    .col-md-8, .col-md-4 {
-        margin-bottom: 15px;
+    body#page-blocks-chaside-view .col-md-8, 
+    body#page-blocks-chaside-view .col-md-4 {
+        margin-bottom: 15px !important;
     }
 }
 
-.question-text {
+body#page-blocks-chaside-view .question-text {
     margin-bottom: 0 !important;
 }
 
-.fa {
-    font-size: 0.9em;
+body#page-blocks-chaside-view .fa {
+    font-size: 0.9em !important;
 }
 ";
 echo html_writer::end_tag('style');
@@ -464,9 +637,29 @@ echo html_writer::end_tag('style');
 echo html_writer::start_tag('script');
 echo "
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
+    const form = document.getElementById('chasideTestForm');
+    if (!form) {
+        return;
+    }
     const radioInputs = form.querySelectorAll('input[type=\"radio\"]');
     let formAttempted = false;
+    let autoSaveTimer = null;
+    
+    // Auto-save functionality (silent)
+    function autoSaveProgress() {
+        // Create FormData from current form
+        const formData = new FormData(form);
+        formData.set('action', 'autosave');
+        
+        // Use fetch to save in background
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        }).catch(error => {
+            // Silent fail - don't interrupt user experience
+            console.log('Auto-save error:', error);
+        });
+    }
     
     // Función para actualizar el estado visual de los botones
     function updateButtonStates(questionName) {
@@ -476,14 +669,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const noInput = form.querySelector('#' + questionName + '_no');
         
         if (yesInput && yesInput.checked) {
-            yesLabel.className = yesLabel.className.replace('btn-outline-success', 'btn-success').replace(' active', '') + ' active';
-            noLabel.className = noLabel.className.replace('btn-danger', 'btn-outline-danger').replace(' active', '');
+            yesLabel.className = 'btn btn-primary flex-fill radio-btn chaside-btn-yes active';
+            noLabel.className = 'btn btn-outline-secondary flex-fill radio-btn chaside-btn-no';
         } else if (noInput && noInput.checked) {
-            noLabel.className = noLabel.className.replace('btn-outline-danger', 'btn-danger').replace(' active', '') + ' active';
-            yesLabel.className = yesLabel.className.replace('btn-success', 'btn-outline-success').replace(' active', '');
+            noLabel.className = 'btn btn-secondary flex-fill radio-btn chaside-btn-no active';
+            yesLabel.className = 'btn btn-outline-primary flex-fill radio-btn chaside-btn-yes';
         } else {
-            yesLabel.className = yesLabel.className.replace('btn-success', 'btn-outline-success').replace(' active', '');
-            noLabel.className = noLabel.className.replace('btn-danger', 'btn-outline-danger').replace(' active', '');
+            yesLabel.className = 'btn btn-outline-primary flex-fill radio-btn chaside-btn-yes';
+            noLabel.className = 'btn btn-outline-secondary flex-fill radio-btn chaside-btn-no';
         }
         
         // Remover clase de no respondida si se responde
@@ -493,31 +686,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.classList.remove('unanswered');
             }
         }
+        
+        // Trigger auto-save after answer change
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+        autoSaveTimer = setTimeout(autoSaveProgress, 2000); // Save 2 seconds after last change
     }
     
-    // Agregar event listeners para manejar clicks en los botones
-    const radioButtons = form.querySelectorAll('.radio-btn');
-    radioButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const input = this.querySelector('input[type=\"radio\"]');
-            if (input) {
-                const wasChecked = input.checked;
-                input.checked = true;
-                updateButtonStates(input.name);
-                validateCurrentPage();
-                
-                // Manually trigger change event if value changed (since programmatic change doesn't fire it)
-                if (!wasChecked) {
-                    const event = new Event('change', { bubbles: true });
-                    input.dispatchEvent(event);
-                }
+    // Manejo robusto de clicks (captura) para evitar que el tema bloquee la interacción.
+    // Similar al enfoque de personality_test: delegación + actualización del valor.
+    document.addEventListener('click', function(e) {
+        const label = e.target.closest('label.radio-btn');
+        if (!label || !form.contains(label)) {
+            return;
+        }
+
+        // Obtener el input asociado (por contenido o por atributo for).
+        let input = label.querySelector('input[type=\"radio\"]');
+        if (!input) {
+            const forId = label.getAttribute('for');
+            if (forId) {
+                input = document.getElementById(forId);
             }
-        });
-    });
-    const saveBtn = form.querySelector('input[value=\"save\"]');
-    const previousBtn = form.querySelector('input[value=\"previous\"]');
-    const nextBtn = form.querySelector('input[value=\"next\"]');
-    const finishBtn = form.querySelector('input[value=\"finish\"]');
+        }
+
+        if (!input) {
+            return;
+        }
+
+        // Marcar y refrescar UI.
+        input.checked = true;
+        updateButtonStates(input.name);
+        validateCurrentPage();
+
+        // Auto-guardar después de 2s.
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+        autoSaveTimer = setTimeout(autoSaveProgress, 2000);
+    }, true);
+    
+    const saveBtn = form.querySelector('button[value=\"save\"]');
+    const previousBtn = form.querySelector('button[value=\"previous\"]');
+    const nextBtn = form.querySelector('button[value=\"next\"]');
+    const finishBtn = form.querySelector('button[value=\"finish\"]');
     
     function validateCurrentPage() {
         const questions = {};
@@ -541,12 +754,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return allAnswered;
     }
     
-    // Agregar event listeners a todos los radio buttons
+    // Agregar event listeners a todos los radio buttons directamente
     radioInputs.forEach(function(input) {
-        input.addEventListener('change', function() {
+        input.addEventListener('change', function(e) {
             updateButtonStates(this.name);
             validateCurrentPage();
         });
+    });
+
+    // Inicializar estados visuales al cargar (por si el tema modifica clases).
+    const seenQuestions = new Set();
+    radioInputs.forEach(function(input) {
+        if (!seenQuestions.has(input.name)) {
+            seenQuestions.add(input.name);
+            updateButtonStates(input.name);
+        }
     });
     
     // Prevenir envío del formulario para los botones que requieren validación
@@ -602,17 +824,81 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Auto-scroll to first unanswered question
+// Auto-scroll to first unanswered question with green highlight
 const scrollToQuestion = " . json_encode($scroll_to_question) . ";
-if (scrollToQuestion > 0) {
-    const questionCard = document.getElementById('question-' + scrollToQuestion);
-    if (questionCard) {
+if (scrollToQuestion && scrollToQuestion !== '' && scrollToQuestion !== '0') {
+    if (scrollToQuestion === 'finish') {
+        // Scroll to finish button when all questions answered
         setTimeout(function() {
-            questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            questionCard.style.boxShadow = '0 0 15px rgba(13, 110, 253, 0.5)';
-            setTimeout(function() {
-                questionCard.style.boxShadow = '';
-            }, 2000);
+            const finishBtn = document.querySelector('button[value=\"finish\"]');
+            if (finishBtn) {
+                finishBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add green pulsing highlight to the button
+                finishBtn.style.boxShadow = '0 0 20px rgba(40, 167, 69, 0.8)';
+                finishBtn.style.transition = 'all 0.3s ease';
+                
+                // Remove highlight after 5 seconds
+                setTimeout(function() {
+                    finishBtn.style.boxShadow = '';
+                }, 5000);
+            }
+        }, 300);
+    } else if (scrollToQuestion === 'highlight_first') {
+        // Highlight and scroll to first question on page (when navigating with next/previous buttons)
+        setTimeout(function() {
+            const firstCard = document.querySelector('.card');
+            if (firstCard) {
+                // Store original styles
+                const originalBorder = firstCard.style.border;
+                const originalBackground = firstCard.style.backgroundColor;
+                const originalBoxShadow = firstCard.style.boxShadow;
+                
+                // Apply green highlight
+                firstCard.style.setProperty('border', '2px solid #28a745', 'important');
+                firstCard.style.setProperty('background-color', '#d4edda', 'important');
+                firstCard.style.setProperty('box-shadow', '0 4px 8px rgba(40, 167, 69, 0.3)', 'important');
+                firstCard.style.transition = 'all 0.3s ease';
+                
+                // Scroll to it
+                firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Remove highlight after 5 seconds
+                setTimeout(function() {
+                    firstCard.style.border = originalBorder;
+                    firstCard.style.backgroundColor = originalBackground;
+                    firstCard.style.boxShadow = originalBoxShadow;
+                }, 5000);
+            }
+        }, 300);
+    } else {
+        // Scroll to specific question with green highlight
+        setTimeout(function() {
+            const questionNum = parseInt(scrollToQuestion);
+            const questionCard = document.getElementById('question-' + questionNum);
+            
+            if (questionCard) {
+                // Store original styles
+                const originalBorder = questionCard.style.border;
+                const originalBackground = questionCard.style.backgroundColor;
+                const originalBoxShadow = questionCard.style.boxShadow;
+                
+                // Apply green highlight
+                questionCard.style.setProperty('border', '2px solid #28a745', 'important');
+                questionCard.style.setProperty('background-color', '#d4edda', 'important');
+                questionCard.style.setProperty('box-shadow', '0 4px 8px rgba(40, 167, 69, 0.3)', 'important');
+                questionCard.style.transition = 'all 0.3s ease';
+                
+                // Scroll to it
+                questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Remove highlight after 5 seconds
+                setTimeout(function() {
+                    questionCard.style.border = originalBorder;
+                    questionCard.style.backgroundColor = originalBackground;
+                    questionCard.style.boxShadow = originalBoxShadow;
+                }, 5000);
+            }
         }, 300);
     }
 }
@@ -648,22 +934,7 @@ document.addEventListener('change', function(e) {
     }
 });
 
-// Warn before leaving with unsaved changes
-window.onbeforeunload = function(e) {
-    if (window.formChanged) {
-        const message = 'Tienes cambios sin guardar.';
-        e.returnValue = message;
-        return message;
-    }
-};
-
-// Clear warning when form is submitted
-const pageForm = document.querySelector('form');
-if (pageForm) {
-    pageForm.addEventListener('submit', function() {
-        window.formChanged = false;
-    });
-}
+// Auto-save handles persistence, no need for beforeunload warning
 ";
 echo html_writer::end_tag('script');
 

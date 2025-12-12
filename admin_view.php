@@ -21,6 +21,62 @@ $PAGE->navbar->add(get_string('admin_dashboard', 'block_chaside'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('admin_dashboard', 'block_chaside'));
 
+// Add custom CSS to protect buttons from theme interference
+echo '<style>
+body#page-blocks-chaside-admin_view .btn,
+body#page-blocks-chaside-admin_view .btn-sm {
+    display: inline-block !important;
+    font-weight: 400 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    user-select: none !important;
+    border: 1px solid transparent !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.2rem !important;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    cursor: pointer !important;
+}
+
+body#page-blocks-chaside-admin_view .btn:hover {
+    text-decoration: none !important;
+}
+
+body#page-blocks-chaside-admin_view table .btn-sm {
+    color: #673ab7 !important;
+    border-color: #673ab7 !important;
+    background-color: #ffffff !important;
+}
+
+body#page-blocks-chaside-admin_view table .btn-sm:hover {
+    color: #ffffff !important;
+    background-color: #673ab7 !important;
+    border-color: #673ab7 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(103, 58, 183, 0.3) !important;
+}
+
+body#page-blocks-chaside-admin_view table .btn-outline-danger {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    background-color: #ffffff !important;
+}
+
+body#page-blocks-chaside-admin_view table .btn-outline-danger:hover {
+    color: #ffffff !important;
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
+}
+
+body#page-blocks-chaside-admin_view table .btn img,
+body#page-blocks-chaside-admin_view table .btn i {
+    vertical-align: middle !important;
+}
+</style>';
+
 // Add description
 echo $OUTPUT->box(
     get_string('admin_dashboard_description', 'block_chaside'),
@@ -61,10 +117,10 @@ echo '<div class="row mb-4">';
 
 // Total enrolled
 echo '<div class="col-md-3 col-sm-6 mb-3">';
-echo '<div class="card border-primary">';
+echo '<div class="card" style="border: 2px solid #9575cd;">';
 echo '<div class="card-body text-center">';
-echo '<i class="fa fa-users text-primary" style="font-size: 2em;"></i>';
-echo '<h3 class="mt-2 mb-1">' . $total_enrolled . '</h3>';
+echo '<i class="fa fa-users" style="font-size: 2.5em; color: #673ab7;"></i>';
+echo '<h3 class="mt-2 mb-1" style="color: #673ab7;">' . $total_enrolled . '</h3>';
 echo '<p class="text-muted mb-0">' . get_string('enrolled_students', 'block_chaside') . '</p>';
 echo '</div>';
 echo '</div>';
@@ -72,10 +128,10 @@ echo '</div>';
 
 // Completed tests
 echo '<div class="col-md-3 col-sm-6 mb-3">';
-echo '<div class="card border-success">';
+echo '<div class="card" style="border: 2px solid #28a745;">';
 echo '<div class="card-body text-center">';
-echo '<i class="fa fa-check-circle text-success" style="font-size: 2em;"></i>';
-echo '<h3 class="mt-2 mb-1">' . $total_completed . '</h3>';
+echo '<i class="fa fa-check-circle" style="font-size: 2.5em; color: #28a745;"></i>';
+echo '<h3 class="mt-2 mb-1" style="color: #28a745;">' . $total_completed . '</h3>';
 echo '<p class="text-muted mb-0">' . get_string('total_completed', 'block_chaside') . '</p>';
 echo '</div>';
 echo '</div>';
@@ -83,10 +139,10 @@ echo '</div>';
 
 // In progress
 echo '<div class="col-md-3 col-sm-6 mb-3">';
-echo '<div class="card border-warning">';
+echo '<div class="card" style="border: 2px solid #b39ddb;">';
 echo '<div class="card-body text-center">';
-echo '<i class="fa fa-clock text-warning" style="font-size: 2em;"></i>';
-echo '<h3 class="mt-2 mb-1">' . $total_in_progress . '</h3>';
+echo '<i class="fa fa-clock" style="font-size: 2.5em; color: #673ab7;"></i>';
+echo '<h3 class="mt-2 mb-1" style="color: #673ab7;">' . $total_in_progress . '</h3>';
 echo '<p class="text-muted mb-0">' . get_string('in_progress', 'block_chaside') . '</p>';
 echo '</div>';
 echo '</div>';
@@ -94,10 +150,10 @@ echo '</div>';
 
 // Completion rate
 echo '<div class="col-md-3 col-sm-6 mb-3">';
-echo '<div class="card border-info">';
+echo '<div class="card" style="border: 2px solid #9575cd;">';
 echo '<div class="card-body text-center">';
-echo '<i class="fa fa-chart-pie text-info" style="font-size: 2em;"></i>';
-echo '<h3 class="mt-2 mb-1">' . number_format($completion_rate, 1) . '%</h3>';
+echo '<i class="fa fa-chart-pie" style="font-size: 2.5em; color: #673ab7;"></i>';
+echo '<h3 class="mt-2 mb-1" style="color: #673ab7;">' . number_format($completion_rate, 1) . '%</h3>';
 echo '<p class="text-muted mb-0">' . get_string('completion_rate', 'block_chaside') . '</p>';
 echo '</div>';
 echo '</div>';
@@ -146,7 +202,8 @@ if ($total_completed > 0) {
     foreach ($area_totals as $area => $total) {
         $area_name = get_string('area_' . strtolower($area), 'block_chaside');
         $avg_score = $area_counts[$area] > 0 ? $total / $area_counts[$area] : 0;
-        $popularity = $total_completed > 0 ? ($area_counts[$area] / $total_completed) * 100 : 0;
+        // Calculate actual preference as percentage of average score relative to maximum (14)
+        $preference_percentage = ($avg_score / 14) * 100;
         
         echo '<div class="col-md-6 col-lg-4 mb-3">';
         echo '<div class="border rounded p-3">';
@@ -159,7 +216,7 @@ if ($total_completed > 0) {
         $progress_width = ($avg_score / 14) * 100;
         echo '<div class="progress-bar bg-primary" style="width: ' . $progress_width . '%"></div>';
         echo '</div>';
-        echo '<small class="text-muted">' . number_format($popularity, 1) . '% ' . get_string('preference', 'block_chaside') . '</small>';
+        echo '<small class="text-muted">' . number_format($preference_percentage, 1) . '% ' . get_string('preference', 'block_chaside') . '</small>';
         echo '</div>';
         echo '</div>';
     }
@@ -179,9 +236,10 @@ echo '</div>';
 echo '</div>';
 
 $table = new flexible_table('block_chaside_report');
-$table->define_columns(array('user', 'timemodified', 'viewresults', 'actions'));
+$table->define_columns(array('user', 'status', 'timemodified', 'viewresults', 'actions'));
 $table->define_headers(array(
     get_string('student', 'block_chaside'), 
+    get_string('completion_status', 'block_chaside'),
     get_string('completiondate', 'block_chaside'), 
     get_string('viewresults', 'block_chaside'),
     get_string('actions', 'block_chaside')
@@ -191,14 +249,14 @@ $table->define_baseurl($PAGE->url);
 
 $table->setup();
 
-// Get responses for enrolled students who have completed the test (in any course)
+// Get ALL responses for enrolled students (completed AND in progress)
 $responses_to_display = array();
 if (!empty($enrolled_ids)) {
     list($insql, $params) = $DB->get_in_or_equal($enrolled_ids, SQL_PARAMS_NAMED, 'user');
-    $params['completed'] = 1;
     
     $sql = "SELECT * FROM {block_chaside_responses} 
-            WHERE userid $insql AND is_completed = :completed";
+            WHERE userid $insql
+            ORDER BY is_completed DESC, timemodified DESC";
     $responses_to_display = $DB->get_records_sql($sql, $params);
 }
 
@@ -213,6 +271,22 @@ if ($responses_to_display) {
         $userpicture->size = 35;
         $usercell = $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $courseid)) . ' ' . fullname($user);
 
+        // Status cell - check if completed
+        if ($response->is_completed) {
+            $statuscell = '<span class="badge bg-success" style="background-color: #28a745 !important;">' . get_string('completed_status', 'block_chaside') . '</span>';
+        } else {
+            // Calculate progress
+            $answered = 0;
+            for ($i = 1; $i <= 98; $i++) {
+                $field = "q{$i}";
+                if (isset($response->$field) && $response->$field !== null) {
+                    $answered++;
+                }
+            }
+            $statuscell = '<span class="badge bg-warning" style="background-color: #ffc107 !important; color: #212529 !important;">' . 
+                         get_string('in_progress', 'block_chaside') . ' (' . $answered . '/98)</span>';
+        }
+
         $viewresultsurl = new moodle_url('/blocks/chaside/view_results.php', array(
             'courseid' => $courseid,
             'blockid' => $blockid,
@@ -223,7 +297,8 @@ if ($responses_to_display) {
             $viewresultsurl, 
             $OUTPUT->pix_icon('i/report', get_string('viewresults', 'block_chaside')),
             array(
-                'class' => 'btn btn-sm btn-outline-primary',
+                'class' => 'btn btn-sm',
+                'style' => 'color: #673ab7; border-color: #673ab7;',
                 'title' => get_string('viewresults', 'block_chaside')
             )
         );
@@ -246,6 +321,7 @@ if ($responses_to_display) {
 
         $row = array(
             $usercell,
+            $statuscell,
             userdate($response->timemodified, get_string('strftimedatetimeshort')),
             $viewresultsbutton,
             $deletebutton
