@@ -40,6 +40,52 @@ if (!$response) {
     exit;
 }
 
+// Get user information BEFORE checking completion status
+$user = $DB->get_record('user', array('id' => $userid));
+
+// Check if test is in progress (similar to personality_test)
+if ($response->is_completed == 0) {
+    echo $OUTPUT->header();
+    
+    // Calculate progress
+    $answered = 0;
+    for ($i = 1; $i <= 98; $i++) {
+        $field = "q{$i}";
+        if (isset($response->$field) && $response->$field !== null) {
+            $answered++;
+        }
+    }
+    $progress_percentage = round(($answered / 98) * 100, 1);
+    
+    echo '<div class="container-fluid">';
+    echo '<div class="alert alert-warning" role="alert">';
+    echo '<h4 class="alert-heading"><i class="fa fa-clock-o"></i> ' . get_string('test_in_progress', 'block_chaside') . '</h4>';
+    echo '<p>' . get_string('test_in_progress_message', 'block_chaside', fullname($user)) . '</p>';
+    echo '<hr>';
+    echo '<p class="mb-1"><strong>' . get_string('progress_label', 'block_chaside') . ':</strong></p>';
+    echo '<div class="progress mb-2" style="height: 30px;">';
+    echo '<div class="progress-bar bg-warning" role="progressbar" style="width: ' . $progress_percentage . '%" aria-valuenow="' . $progress_percentage . '" aria-valuemin="0" aria-valuemax="100">';
+    echo '<strong>' . $progress_percentage . '%</strong>';
+    echo '</div>';
+    echo '</div>';
+    echo '<p><strong>' . get_string('has_answered', 'block_chaside') . ':</strong> ' . $answered . '/98 ' . get_string('questions', 'block_chaside') . '</p>';
+    echo '<p class="mb-0"><em>' . get_string('results_available_when_complete', 'block_chaside', fullname($user)) . '</em></p>';
+    echo '</div>';
+    
+    // Link back to admin
+    if ($userid != $USER->id) {
+        echo '<div class="mt-4">';
+        echo '<a href="' . new moodle_url('/blocks/chaside/admin_view.php', array('courseid' => $courseid)) . '" class="btn btn-secondary">';
+        echo '<i class="fa fa-arrow-left"></i> ' . get_string('back_to_admin', 'block_chaside');
+        echo '</a>';
+        echo '</div>';
+    }
+    echo '</div>';
+    
+    echo $OUTPUT->footer();
+    exit;
+}
+
 // Generate official CHASIDE results
 $facade = new ChasideFacade();
 $response_array = (array) $response;
@@ -81,8 +127,8 @@ if ($results['resumen_ejecutivo']['top1']) {
     echo html_writer::end_tag('div');
     echo html_writer::start_tag('div', array('class' => 'card-body'));
     echo html_writer::tag('h5', $top1['label'], array('class' => 'card-title'));
-    echo html_writer::tag('p', 'Puntuación Total: ' . $top1['total'] . '/14 (' . $top1['pct_total'] . '%)', array('class' => 'card-text'));
-    echo html_writer::tag('p', 'Intereses: ' . $top1['i'] . '/10 | Aptitudes: ' . $top1['a'] . '/4', array('class' => 'card-text small text-muted'));
+    echo html_writer::tag('p', get_string('total_score', 'block_chaside') . ': ' . $top1['total'] . '/14 (' . $top1['pct_total'] . '%)', array('class' => 'card-text'));
+    echo html_writer::tag('p', get_string('interests', 'block_chaside') . ': ' . $top1['i'] . '/10 | ' . get_string('aptitudes', 'block_chaside') . ': ' . $top1['a'] . '/4', array('class' => 'card-text small text-muted'));
     
     // Progress bar for top1
     echo html_writer::start_tag('div', array('class' => 'progress mb-2', 'style' => 'height: 20px;'));
@@ -102,12 +148,12 @@ if ($results['resumen_ejecutivo']['top2']) {
     echo html_writer::start_tag('div', array('class' => 'col-md-6'));
     echo html_writer::start_tag('div', array('class' => 'card border-secondary'));
     echo html_writer::start_tag('div', array('class' => 'card-header bg-secondary text-white'));
-    echo html_writer::tag('h4', '🥈 Segunda Área Principal', array('class' => 'mb-0'));
+    echo html_writer::tag('h4', '🥈 ' . get_string('second_top_area', 'block_chaside'), array('class' => 'mb-0'));
     echo html_writer::end_tag('div');
     echo html_writer::start_tag('div', array('class' => 'card-body'));
     echo html_writer::tag('h5', $top2['label'], array('class' => 'card-title'));
-    echo html_writer::tag('p', 'Puntuación Total: ' . $top2['total'] . '/14 (' . $top2['pct_total'] . '%)', array('class' => 'card-text'));
-    echo html_writer::tag('p', 'Intereses: ' . $top2['i'] . '/10 | Aptitudes: ' . $top2['a'] . '/4', array('class' => 'card-text small text-muted'));
+    echo html_writer::tag('p', get_string('total_score', 'block_chaside') . ': ' . $top2['total'] . '/14 (' . $top2['pct_total'] . '%)', array('class' => 'card-text'));
+    echo html_writer::tag('p', get_string('interests', 'block_chaside') . ': ' . $top2['i'] . '/10 | ' . get_string('aptitudes', 'block_chaside') . ': ' . $top2['a'] . '/4', array('class' => 'card-text small text-muted'));
     
     // Progress bar for top2
     echo html_writer::start_tag('div', array('class' => 'progress mb-2', 'style' => 'height: 20px;'));
@@ -152,11 +198,10 @@ echo html_writer::start_tag('div', array('class' => 'table-responsive'));
 echo html_writer::start_tag('table', array('class' => 'table table-striped table-bordered'));
 echo html_writer::start_tag('thead', array('class' => 'thead-dark'));
 echo html_writer::start_tag('tr');
-echo html_writer::tag('th', 'Área', array('scope' => 'col'));
+echo html_writer::tag('th', get_string('area_label', 'block_chaside'), array('scope' => 'col'));
 echo html_writer::tag('th', get_string('interests', 'block_chaside') . ' (0-10)', array('scope' => 'col'));
 echo html_writer::tag('th', get_string('aptitudes', 'block_chaside') . ' (0-4)', array('scope' => 'col'));
 echo html_writer::tag('th', get_string('total', 'block_chaside') . ' (0-14)', array('scope' => 'col'));
-echo html_writer::tag('th', get_string('percentage', 'block_chaside'), array('scope' => 'col'));
 echo html_writer::tag('th', get_string('level', 'block_chaside'), array('scope' => 'col'));
 echo html_writer::tag('th', get_string('gap', 'block_chaside'), array('scope' => 'col'));
 echo html_writer::tag('th', get_string('interpretation', 'block_chaside'), array('scope' => 'col'));
@@ -241,7 +286,7 @@ echo html_writer::end_tag('div');
 
 // Visual Chart Section (Simple bar chart with CSS)
 echo html_writer::start_tag('div', array('class' => 'chaside-visual-chart mb-4'));
-echo html_writer::tag('h3', 'Gráfico de Puntuaciones Totales');
+echo html_writer::tag('h3', get_string('scores_chart_title', 'block_chaside'));
 
 $colors = array(
     'C' => '#FF6B6B',
@@ -286,7 +331,7 @@ echo html_writer::link(
 if (has_capability('block/chaside:viewreports', $context)) {
     echo html_writer::link(
         new moodle_url('/blocks/chaside/admin_view.php', array('courseid' => $courseid, 'blockid' => $blockid)),
-        'Ver Panel Administrativo',
+        get_string('admin_dashboard', 'block_chaside'),
         array('class' => 'btn btn-primary')
     );
 }
